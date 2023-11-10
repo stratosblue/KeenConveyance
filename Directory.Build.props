@@ -1,0 +1,35 @@
+<Project>
+	<PropertyGroup>
+		<TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
+
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+
+		<LangVersion>latest</LangVersion>
+		<IsPackable>false</IsPackable>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<Version>1.0.0-preview-001</Version>
+
+		<Description>A `Asp.Net Core Controller` service call framework based on `interface`. 基于 `interface` 的 `Asp.Net Core Controller` 服务调用框架。</Description>
+
+		<PackageIdPrefix>KeenConveyance</PackageIdPrefix>
+		<Authors>Stratos</Authors>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageProjectUrl>https://github.com/stratosblue/KeenConveyance</PackageProjectUrl>
+
+		<RepositoryType>git</RepositoryType>
+		<RepositoryUrl>$(PackageProjectUrl)</RepositoryUrl>
+
+		<PackageTags>aspnetcore controller aspnetcore-controller service-call service-to-service httpclient http-client source-generator</PackageTags>
+	</PropertyGroup>
+
+	<ItemGroup Condition="'$(Configuration)' == 'Release'">
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.*" PrivateAssets="All" />
+	</ItemGroup>
+
+	<PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
+		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+	</PropertyGroup>
+</Project>

@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "SourceGenerator.Test": {
+      "commandName": "DebugRoslynComponent",
+      "targetProject": "../../test/KeenConveyance.Test/KeenConveyance.Test.csproj"
+    },
+    "SourceGenerator.ClientSample": {
+      "commandName": "DebugRoslynComponent",
+      "targetProject": "../../sample/ClientSample/ClientSample.csproj"
+    }
+  }
+}

@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<IsPackable>true</IsPackable>
+
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="..\..\README.md" Link="README.md" Pack="true" PackagePath="/" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="ConfigureAwaitAnalyzer" Version="1.0.3">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.Extensions.Http" Version="7.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Content Include="KeenConveyance.props" PackagePath="build/$(PackageId).props" />
+
+		<ProjectReference Include="..\KeenConveyance.SourceGenerator\KeenConveyance.SourceGenerator.csproj" PrivateAssets="All" />
+	</ItemGroup>
+
+	<PropertyGroup Condition="'$(Configuration)' == 'Release'">
+		<EmbedUntrackedSources>true</EmbedUntrackedSources>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+	</PropertyGroup>
+
+	<Target Name="_IncludeSourceGenerator" BeforeTargets="_GetPackageFiles">
+		<ItemGroup>
+			<None Include="..\KeenConveyance.SourceGenerator\bin\$(Configuration)\**\*.dll" Pack="True" PackagePath="analyzers\dotnet\cs" />
+		</ItemGroup>
+	</Target>
+</Project>
