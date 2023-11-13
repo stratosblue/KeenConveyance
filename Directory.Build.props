@@ -10,7 +10,7 @@
 	</PropertyGroup>
 
 	<PropertyGroup>
-		<Version>1.0.0-preview-002</Version>
+		<Version>1.0.0-preview-003</Version>
 
 		<Description>A `Asp.Net Core Controller` service call framework based on `interface`. 基于 `interface` 的 `Asp.Net Core Controller` 服务调用框架。</Description>
 
