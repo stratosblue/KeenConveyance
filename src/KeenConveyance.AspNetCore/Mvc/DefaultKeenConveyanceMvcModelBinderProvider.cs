@@ -32,6 +32,11 @@ public class DefaultKeenConveyanceMvcModelBinderProvider : IModelBinderProvider
     /// <inheritdoc/>
     public virtual IModelBinder? GetBinder(ModelBinderProviderContext context)
     {
+        if (context.BindingInfo.BindingSource?.IsFromRequest == false)
+        {
+            //明确不是从请求绑定的参数，返回null，由框架进行处理
+            return null;
+        }
         for (var i = 0; i < _providers.Count; i++)
         {
             var provider = _providers[i];
@@ -45,6 +50,7 @@ public class DefaultKeenConveyanceMvcModelBinderProvider : IModelBinderProvider
             }
         }
 
+        //已遍历mvc的所有已配置的IModelBinderProvider，返回默认的ModelBinderProvider，中断mvc框架内部的遍历
         return KeenConveyanceMvcModelBinder.Shared;
     }
 

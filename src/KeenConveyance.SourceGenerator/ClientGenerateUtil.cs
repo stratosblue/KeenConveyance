@@ -51,6 +51,10 @@ namespace {{rootNamespace}};
 [EditorBrowsable(EditorBrowsableState.Never)]
 internal static partial class GeneratedClient
 {
+    /// <summary>
+    /// 完成对 KeenConveyance 客户端代理类型的加载 <br/>
+    /// 包含：{{string.Join("、", clientGenerateInfos.Select(m => $"<see cref=\"{m.ServiceType.ToFullyQualifiedString()}\"/>"))}}
+    /// </summary>
     public static void CompleteClientSetup<TClient>(this IKeenConveyanceClientBuilder<TClient> builder)
     {
 """);
@@ -160,6 +164,7 @@ $$"""
 
                 builder.AppendLine(
 $$"""
+        /// <inheritdoc/>
         public virtual {{methodGenerateInfo.MethodSymbol.ReturnType.ToFullyQualifiedString()}} {{methodGenerateInfo.Name}}({{parameterString}})
         {
             HttpContent? httpContent = {{createHttpContextString}}
@@ -202,6 +207,7 @@ $$"""
 """
             }
 
+            /// <inheritdoc/>
             protected override ValueTask WriteContentAsync(Utf8JsonWriter jsonWriter)
             {
 """);

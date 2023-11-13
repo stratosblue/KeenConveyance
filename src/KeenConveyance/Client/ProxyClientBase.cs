@@ -61,7 +61,7 @@ public abstract class ProxyClientBase : IDisposable
         var serviceAddress = await ServiceAddressProvider.RequireUriAsync(cancellationToken).ConfigureAwait(false);
         using var httpRequestMessage = HttpRequestMessageConstructor.CreateHttpRequestMessage(serviceAddress, entryKey, httpContent);
 
-        using var httpResponseMessage = await UnderlyingHttpClient.SendAsync(httpRequestMessage, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+        using var httpResponseMessage = await SendHttpRequestMessageAsync(entryKey, httpRequestMessage, cancellationToken).ConfigureAwait(false);
 
         httpResponseMessage.EnsureSuccessStatusCode();
     }
@@ -79,7 +79,7 @@ public abstract class ProxyClientBase : IDisposable
         var serviceAddress = await ServiceAddressProvider.RequireUriAsync(cancellationToken).ConfigureAwait(false);
         using var httpRequestMessage = HttpRequestMessageConstructor.CreateHttpRequestMessage(serviceAddress, entryKey, httpContent);
 
-        using var httpResponseMessage = await UnderlyingHttpClient.SendAsync(httpRequestMessage, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+        using var httpResponseMessage = await SendHttpRequestMessageAsync(entryKey, httpRequestMessage, cancellationToken).ConfigureAwait(false);
 
         return await ProcessResponseAsync<TResult>(httpResponseMessage, cancellationToken).ConfigureAwait(false);
     }
@@ -96,7 +96,7 @@ public abstract class ProxyClientBase : IDisposable
         var serviceAddress = await ServiceAddressProvider.RequireUriAsync(cancellationToken).ConfigureAwait(false);
         using var httpRequestMessage = HttpRequestMessageConstructor.CreateHttpRequestMessage(serviceAddress, entryKey, httpContent);
 
-        using var httpResponseMessage = await UnderlyingHttpClient.SendAsync(httpRequestMessage, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+        using var httpResponseMessage = await SendHttpRequestMessageAsync(entryKey, httpRequestMessage, cancellationToken).ConfigureAwait(false);
 
         httpResponseMessage.EnsureSuccessStatusCode();
 
@@ -122,6 +122,18 @@ public abstract class ProxyClientBase : IDisposable
         using var responseStream = await httpResponseMessage.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
 
         return await JsonSerializer.DeserializeAsync<TResult>(responseStream, options: JsonSerializerOptions, cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// 发送 <paramref name="entryKey"/> 的 <paramref name="httpRequestMessage"/>
+    /// </summary>
+    /// <param name="entryKey"></param>
+    /// <param name="httpRequestMessage"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    protected virtual Task<HttpResponseMessage> SendHttpRequestMessageAsync(string entryKey, HttpRequestMessage httpRequestMessage, in CancellationToken cancellationToken)
+    {
+        return UnderlyingHttpClient.SendAsync(httpRequestMessage, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
     }
 
     #endregion Protected 方法

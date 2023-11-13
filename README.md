@@ -6,14 +6,16 @@ A `Asp.Net Core Controller` service call framework based on `interface`. 基于 
 
  - 动态 `Controller` 选择. 支持选择指定类型注册为 `Controller` 并暴露 `HttpAPI`;
  - 服务端基于 `Asp.Net Core`	的 `Controller`. 支持所有标准的 `Controller` 功能, 如 `Filter`、`Authentication`、`Authorization`等(*);
- - 客户端基于 `Microsoft.Extensions.Http` 和 `SourceGenerator`. 无运行时动态代码生成, 支持 `Microsoft.Extensions.Http` 丰富的拓展 (`Polly`等);
+ - 客户端基于 `Microsoft.Extensions.Http` 和 `SourceGenerator`. 无运行时动态代码生成, 支持 `Microsoft.Extensions.Http` 丰富的拓展 (`Polly`、`链路追踪`等);
  - 基于约定的客户端代码生成. 不依赖类库共享;
  - 目标框架 `net6.0`+;
 
 ### NOTE!!!
  - 虽然支持所有标准的 `Controller` 功能且执行其流程, 但框架并非按照 `Controller` 定义进行请求, 框架的请求中会忽略 `[FromQuery]`、`[FromRoute]` 等定义直接使用 `ModelBinder` 从 `Body` 进行绑定;
 	- 即: 如果请求由框架发起, 则依赖原始 `HttpContext`	信息的功能可能不能正常工作, 例如请求的 `Query`、`Path` 中不包含 `Action` 的信息;
-    
+ - 方法参数建议使用简单类型或 `DTO`: 除 `CancellationToken` 外, 客户端会将方法参数都序列化后传递给服务端，服务端从 `Body` 进行绑定, 对一些特殊的参数不支持如 `IFormFile` 等;
+ - 框架对接口定义的 `命名空间`、`方法名称`、`参数类型`、`参数顺序`、`参数名称` 强依赖, 需要保证客户端与服务端接口定义一致;
+ 
 ## 2. 快速开始
 
 ### 2.1 服务端
@@ -101,7 +103,7 @@ services.AddKeenConveyance()
 ## 其他
 
  - 客户端代码生成在当前项目的根命名空间下，提示未找到 `CompleteClientSetup` 方法可以手动 `using` 当前项目的根命名空间进行尝试;
- - 生成的客户端代码都已标记为 `partial` 类型, 可声明对应的 `partial` 类，并重写方法来进行自定义操作, 服务的代理类型为格式为 `{ServiceName}ProxyClient` (如 `ISampleServiceProxy` 的代理类型为 `ISampleServiceProxyClient`) :
+ - 生成的客户端代码都已标记为 `partial` 类型, 可声明对应的 `partial` 类，并重写方法来进行自定义操作, 服务的代理类型为格式为 `{ServiceName}ProxyClient` (如 `ISampleService` 的代理类型为 `ISampleServiceProxyClient`) :
    ```C#
     internal static partial class GeneratedClient
     {

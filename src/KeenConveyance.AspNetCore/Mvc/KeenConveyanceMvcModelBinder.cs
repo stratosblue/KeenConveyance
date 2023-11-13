@@ -16,8 +16,7 @@ internal sealed class KeenConveyanceMvcModelBinder : IModelBinder
 
     public Task BindModelAsync(ModelBindingContext bindingContext)
     {
-        if (!bindingContext.HttpContext.IsKeenConveyanceRequest()
-            || bindingContext.BindingSource?.IsFromRequest == false)
+        if (!bindingContext.HttpContext.IsKeenConveyanceRequest())
         {
             return Task.CompletedTask;
         }

@@ -40,8 +40,7 @@ internal class KeenConveyanceWrappedMvcModelBinder : IModelBinder
 
     public Task BindModelAsync(ModelBindingContext bindingContext)
     {
-        if (!bindingContext.HttpContext.IsKeenConveyanceRequest()
-            || bindingContext.BindingSource?.IsFromRequest == false)
+        if (!bindingContext.HttpContext.IsKeenConveyanceRequest())
         {
             return _innerModelBinder.BindModelAsync(bindingContext) ?? Task.CompletedTask;
         }
