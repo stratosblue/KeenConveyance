@@ -83,14 +83,15 @@ public class SampleService : ISampleService
 services.AddKeenConveyance()
         .ConfigureClient(builder =>
         {
-            //必须在此链式调用 AddClient 使用服务接口定义添加客户端, 并在最终调用 CompleteClientSetup 方法
-            builder.AddClient<ISampleService>(httpClientBuilder =>
+            //必须在此调用 BeginSetupClients 方法，并链式调用 AddClient 使用服务接口定义添加客户端, 并在最终调用 CompleteClientsSetup 方法
+            builder.BeginSetupClients()
+                   .AddClient<ISampleService>(httpClientBuilder =>
                    {
                        //配置服务地址
                        httpClientBuilder.ConfigureServiceAddress("http://127.0.0.1:5225");  //必须配置客户端的服务地址
                        // 在此进行 ISampleService 的 HttpClient 配置
                    })
-                   .CompleteClientSetup();  //必须在最后调用 CompleteClientSetup 方法，提示未找到此方法可尝试手动using当前项目的根命名空间
+                   .CompleteClientsSetup();  //必须在最后调用 CompleteClientsSetup 方法，提示未找到此方法可尝试手动using当前项目的根命名空间
         });
 ```
 
@@ -102,7 +103,7 @@ services.AddKeenConveyance()
 
 ## 其他
 
- - 客户端代码生成在当前项目的根命名空间下，提示未找到 `CompleteClientSetup` 方法可以手动 `using` 当前项目的根命名空间进行尝试;
+ - 客户端代码生成在当前项目的根命名空间下，提示未找到 `CompleteClientsSetup` 方法可以手动 `using` 当前项目的根命名空间进行尝试;
  - 生成的客户端代码都已标记为 `partial` 类型, 可声明对应的 `partial` 类，并重写方法来进行自定义操作, 服务的代理类型为格式为 `{ServiceName}ProxyClient` (如 `ISampleService` 的代理类型为 `ISampleServiceProxyClient`) :
    ```C#
     internal static partial class GeneratedClient

@@ -10,9 +10,10 @@ public interface IServiceAddressProvider
     /// <summary>
     /// 获取服务地址
     /// </summary>
+    /// <param name="clientName"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    ValueTask<Uri> RequireUriAsync(CancellationToken cancellationToken);
+    ValueTask<Uri> RequireUriAsync(string clientName, CancellationToken cancellationToken);
 
     #endregion Public 方法
 }

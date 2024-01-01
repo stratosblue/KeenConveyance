@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace KeenConveyance;
 
@@ -18,16 +19,33 @@ public static class KeenConveyanceBuildExtensions
     /// <param name="builder"></param>
     /// <param name="httpClientSetupAction">客户端配置委托</param>
     /// <returns></returns>
-    public static IKeenConveyanceClientBuilder<TClient> AddClient<TClient>(this IKeenConveyanceClientBuilder builder,
-                                                                           Action<IKeenConveyanceHttpClientBuilder<TClient>>? httpClientSetupAction = null)
+    public static IKeenConveyanceClientBuilderGroupBuilder AddClient<TClient>(this IKeenConveyanceClientBuilderGroupBuilder builder,
+                                                                              Action<IKeenConveyanceHttpClientBuilder<TClient>>? httpClientSetupAction = null)
         where TClient : class
     {
+        if (builder is not KeenConveyanceClientBuilderGroupBuilder groupBuilder)
+        {
+            throw new ArgumentException($"unsupported builder type -> {builder.GetType()}");
+        }
+
         var httpClientBuilder = new KeenConveyanceHttpClientBuilder<TClient>(builder.Services.AddHttpClient<TClient>());
-        builder.Context.ClientHttpClientBuilders.Add(typeof(TClient), httpClientBuilder);
+
+        //直接添加，以在重复配置时抛出异常
+        groupBuilder.Context.ClientHttpClientBuilders.Add(typeof(TClient), httpClientBuilder);
+        groupBuilder.GroupContext.ClientHttpClientBuilders.Add(typeof(TClient), httpClientBuilder);
+
+        //先进行组配置，私有配置将覆盖组配置
+        if (groupBuilder.GroupOptionsSetupAction is not null)
+        {
+            builder.Services.AddOptions<KeenConveyanceClientOptions>(CachedTypeNameAccessor<TClient>.DisplayName)
+                            .Configure(groupBuilder.GroupOptionsSetupAction);
+        }
+
+        groupBuilder.GroupHttpClientSetupAction?.Invoke(httpClientBuilder);
 
         httpClientSetupAction?.Invoke(httpClientBuilder);
 
-        return new KeenConveyanceClientBuilder<TClient>(builder.Services, builder.Context);
+        return groupBuilder;
     }
 
     /// <summary>
@@ -39,6 +57,19 @@ public static class KeenConveyanceBuildExtensions
     {
         services.AddLogging();
         return new KeenConveyanceBuilder(services);
+    }
+
+    /// <summary>
+    /// 开始进行设置客户端组配置
+    /// </summary>
+    /// <param name="builder"></param>
+    /// <param name="groupOptionsSetupAction">当前组的选项设置委托，将在客户端的私有配置前配置</param>
+    /// <param name="groupHttpClientSetupAction">当前组的 <see cref="IHttpClientBuilder"/> 设置委托，将在客户端的私有配置前配置</param>
+    /// <returns></returns>
+    public static IKeenConveyanceClientBuilderGroupBuilder BeginSetupClients(this IKeenConveyanceClientBuilder builder, Action<KeenConveyanceClientOptions>? groupOptionsSetupAction = null, Action<IHttpClientBuilder>? groupHttpClientSetupAction = null)
+    {
+        var groupBuilder = new KeenConveyanceClientBuilderGroupBuilder(builder.Services, builder.Context, groupOptionsSetupAction, groupHttpClientSetupAction);
+        return groupBuilder;
     }
 
     /// <summary>
@@ -87,7 +118,7 @@ public static class KeenConveyanceBuildExtensions
     public static IKeenConveyanceHttpClientBuilder<TClient> ConfigureServiceAddress<TClient>(this IKeenConveyanceHttpClientBuilder<TClient> builder, Uri serviceAddress)
         where TClient : class
     {
-        return ConfigureServiceAddress(builder, new KeenConveyanceFixedServiceAddressProvider(serviceAddress));
+        return ConfigureServiceAddress(builder, new FixedServiceAddressProvider(serviceAddress));
     }
 
     /// <summary>
@@ -198,4 +229,22 @@ public static class KeenConveyanceBuildExtensions
     }
 
     #endregion HttpRequestMessageConstructor
+
+    #region Global Options
+
+    /// <summary>
+    /// 配置全局配置
+    /// </summary>
+    /// <param name="builder"></param>
+    /// <param name="configureOptions"></param>
+    /// <returns></returns>
+    public static IKeenConveyanceClientBuilder GlobalOptions(this IKeenConveyanceClientBuilder builder, Action<KeenConveyanceClientOptions> configureOptions)
+    {
+        builder.Services.AddOptions<KeenConveyanceClientOptions>(Options.DefaultName)
+                        .Configure(configureOptions);
+
+        return builder;
+    }
+
+    #endregion Global Options
 }

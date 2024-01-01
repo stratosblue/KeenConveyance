@@ -7,10 +7,10 @@ public class QueryBaseClientInvokeTest : ClientInvokeTestBase<QueryBaseTestStart
 {
     #region Protected 方法
 
-    protected override void ConfigureWithTestServer<T>(IKeenConveyanceHttpClientBuilder<T> httpClientBuilder)
+    protected override void ConfigureWithTestServer(KeenConveyanceClientOptions options)
     {
-        base.ConfigureWithTestServer(httpClientBuilder);
-        httpClientBuilder.ConfigureQueryBaseHttpRequestMessageConstructor();
+        base.ConfigureWithTestServer(options);
+        options.HttpRequestMessageConstructor = new QueryBaseHttpRequestMessageConstructor();
     }
 
     #endregion Protected 方法
@@ -21,10 +21,10 @@ public class PathBaseClientInvokeTest : ClientInvokeTestBase<PathBaseTestStartup
 {
     #region Protected 方法
 
-    protected override void ConfigureWithTestServer<T>(IKeenConveyanceHttpClientBuilder<T> httpClientBuilder)
+    protected override void ConfigureWithTestServer(KeenConveyanceClientOptions options)
     {
-        base.ConfigureWithTestServer(httpClientBuilder);
-        httpClientBuilder.ConfigurePathBaseHttpRequestMessageConstructor();
+        base.ConfigureWithTestServer(options);
+        options.HttpRequestMessageConstructor = new PathBaseHttpRequestMessageConstructor();
     }
 
     #endregion Protected 方法

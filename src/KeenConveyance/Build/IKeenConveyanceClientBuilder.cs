@@ -19,6 +19,29 @@ public interface IKeenConveyanceClientBuilder
     public IServiceCollection Services { get; }
 
     #endregion Public 属性
+}
+
+/// <summary>
+/// KeenConveyance 客户端构造器组构造器
+/// </summary>
+public interface IKeenConveyanceClientBuilderGroupBuilder
+{
+    #region Public 属性
+
+    /// <summary>
+    /// 客户端构造上下文
+    /// </summary>
+    public KeenConveyanceClientBuilderContext Context { get; }
+
+    /// <summary>
+    /// 客户端构造上下文当前构造的组
+    /// </summary>
+    public KeenConveyanceClientBuilderContext GroupContext { get; }
+
+    /// <inheritdoc cref="IServiceCollection"/>
+    public IServiceCollection Services { get; }
+
+    #endregion Public 属性
 
     #region Public 方法
 
@@ -33,12 +56,12 @@ public interface IKeenConveyanceClientBuilder
         where TClient : class
         where TImplementation : class, TClient;
 
-    #endregion Public 方法
-}
+    /// <summary>
+    /// 完成客户端组的配置
+    /// </summary>
+    /// <returns></returns>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public void CompleteClientGroupSetup();
 
-/// <summary>
-/// <typeparamref name="TClient"/> 的 KeenConveyance 客户端构造器
-/// </summary>
-public interface IKeenConveyanceClientBuilder<TClient> : IKeenConveyanceClientBuilder
-{
+    #endregion Public 方法
 }

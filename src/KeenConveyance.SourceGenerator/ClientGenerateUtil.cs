@@ -55,13 +55,14 @@ internal static partial class GeneratedClient
     /// 完成对 KeenConveyance 客户端代理类型的加载 <br/>
     /// 包含：{{string.Join("、", clientGenerateInfos.Select(m => $"<see cref=\"{m.ServiceType.ToFullyQualifiedString()}\"/>"))}}
     /// </summary>
-    public static void CompleteClientSetup<TClient>(this IKeenConveyanceClientBuilder<TClient> builder)
+    public static void CompleteClientsSetup(this IKeenConveyanceClientBuilderGroupBuilder builder)
     {
 """);
         foreach (var generateInfo in clientGenerateInfos)
         {
             builder.AppendLine($"        builder.ApplyClientImplementation<{generateInfo.ServiceType.ToFullyQualifiedString()}, {generateInfo.Name}ProxyClient>();");
         }
+        builder.AppendLine("        builder.CompleteClientGroupSetup();");
         builder.AppendLine("    }");
         builder.AppendLine();
 

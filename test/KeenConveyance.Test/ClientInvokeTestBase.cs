@@ -24,8 +24,9 @@ public abstract class ClientInvokeTestBase<TTestStartup> : TestServerBaseTestBas
         services.AddKeenConveyance()
                 .ConfigureClient(builder =>
                 {
-                    builder.AddClient<ITestService>(ConfigureWithTestServer)
-                           .CompleteClientSetup();
+                    builder.BeginSetupClients(ConfigureWithTestServer, ConfigureWithTestServer)
+                           .AddClient<ITestService>()
+                           .CompleteClientsSetup();
                 });
         return services;
     }

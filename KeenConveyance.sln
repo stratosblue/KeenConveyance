@@ -17,6 +17,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KeenConveyance.Test", "test
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "solution items", "solution items", "{07D4524D-19D0-4AA4-916E-829CAE401A7F}"
 	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
 		Directory.Build.props = Directory.Build.props
 		LICENSE.txt = LICENSE.txt
 		README.md = README.md
@@ -32,7 +33,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebAPISample", "sample\WebA
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClientSample", "sample\ClientSample\ClientSample.csproj", "{125FBA91-9991-4AE3-85A4-83F07C52DC21}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KeenConveyance.TestWebAPI", "test\KeenConveyance.TestWebAPI\KeenConveyance.TestWebAPI.csproj", "{CBDDA393-55DB-4D08-96E1-4117A6B56B48}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KeenConveyance.TestWebAPI", "test\KeenConveyance.TestWebAPI\KeenConveyance.TestWebAPI.csproj", "{CBDDA393-55DB-4D08-96E1-4117A6B56B48}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -3,7 +3,10 @@ using System.Runtime.CompilerServices;
 
 namespace KeenConveyance;
 
-internal sealed class PathBaseHttpRequestMessageConstructor : IHttpRequestMessageConstructor
+/// <summary>
+/// 基于Path的 <see cref="IHttpRequestMessageConstructor"/>
+/// </summary>
+public sealed class PathBaseHttpRequestMessageConstructor : IHttpRequestMessageConstructor
 {
     #region Private 字段
 
@@ -15,7 +18,8 @@ internal sealed class PathBaseHttpRequestMessageConstructor : IHttpRequestMessag
 
     #region Public 构造函数
 
-    public PathBaseHttpRequestMessageConstructor(string serviceEntryPath)
+    /// <inheritdoc cref="PathBaseHttpRequestMessageConstructor"/>
+    public PathBaseHttpRequestMessageConstructor(string serviceEntryPath = KeenConveyanceConstants.DefaultEntryPath)
     {
         if (string.IsNullOrWhiteSpace(serviceEntryPath))
         {
@@ -49,6 +53,7 @@ internal sealed class PathBaseHttpRequestMessageConstructor : IHttpRequestMessag
 
     #region Public 方法
 
+    /// <inheritdoc/>
     public HttpRequestMessage CreateHttpRequestMessage(Uri serviceAddress, string entryKey, HttpContent? httpContent)
     {
         var requestUri = GetRequestUri(serviceAddress, entryKey);

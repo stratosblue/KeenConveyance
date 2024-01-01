@@ -1,6 +1,9 @@
 ﻿namespace KeenConveyance;
 
-internal sealed class KeenConveyanceFixedServiceAddressProvider : IServiceAddressProvider
+/// <summary>
+/// 固定地址的 <see cref="IServiceAddressProvider"/>
+/// </summary>
+public sealed class FixedServiceAddressProvider : IServiceAddressProvider
 {
     #region Private 字段
 
@@ -10,7 +13,8 @@ internal sealed class KeenConveyanceFixedServiceAddressProvider : IServiceAddres
 
     #region Public 构造函数
 
-    public KeenConveyanceFixedServiceAddressProvider(Uri uri)
+    /// <inheritdoc cref="FixedServiceAddressProvider"/>
+    public FixedServiceAddressProvider(Uri uri)
     {
         ArgumentNullException.ThrowIfNull(uri);
         if (!uri.IsAbsoluteUri)
@@ -24,7 +28,7 @@ internal sealed class KeenConveyanceFixedServiceAddressProvider : IServiceAddres
 
     #region Public 方法
 
-    public ValueTask<Uri> RequireUriAsync(CancellationToken cancellationToken) => ValueTask.FromResult(_uri);
+    public ValueTask<Uri> RequireUriAsync(string clientName, CancellationToken cancellationToken) => ValueTask.FromResult(_uri);
 
     #endregion Public 方法
 }

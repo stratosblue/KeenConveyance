@@ -3,7 +3,10 @@ using System.Runtime.CompilerServices;
 
 namespace KeenConveyance;
 
-internal sealed class QueryBaseHttpRequestMessageConstructor : IHttpRequestMessageConstructor
+/// <summary>
+/// 基于Query的 <see cref="IHttpRequestMessageConstructor"/>
+/// </summary>
+public sealed class QueryBaseHttpRequestMessageConstructor : IHttpRequestMessageConstructor
 {
     #region Private 字段
 
@@ -17,7 +20,8 @@ internal sealed class QueryBaseHttpRequestMessageConstructor : IHttpRequestMessa
 
     #region Public 构造函数
 
-    public QueryBaseHttpRequestMessageConstructor(string serviceEntryPath, string queryKey)
+    /// <inheritdoc cref="QueryBaseHttpRequestMessageConstructor"/>
+    public QueryBaseHttpRequestMessageConstructor(string serviceEntryPath = KeenConveyanceConstants.DefaultEntryPath, string queryKey = QueryBaseEntryKeyOptions.DefaultQueryKey)
     {
         if (string.IsNullOrWhiteSpace(serviceEntryPath))
         {
@@ -58,6 +62,7 @@ internal sealed class QueryBaseHttpRequestMessageConstructor : IHttpRequestMessa
 
     #region Public 方法
 
+    /// <inheritdoc/>
     public HttpRequestMessage CreateHttpRequestMessage(Uri serviceAddress, string entryKey, HttpContent? httpContent)
     {
         var requestUri = GetRequestUri(serviceAddress, entryKey);

@@ -10,9 +10,9 @@
 	</PropertyGroup>
 
 	<PropertyGroup>
-		<Version>1.0.0-preview-003</Version>
+		<Version>1.0.0-preview-004</Version>
 
-		<Description>A `Asp.Net Core Controller` service call framework based on `interface`. 基于 `interface` 的 `Asp.Net Core Controller` 服务调用框架。</Description>
+		<Description>A `Asp.Net Core Controller` service call RPC framework based on `interface`. 基于 `interface` 的 `Asp.Net Core Controller` 服务调用RPC框架。</Description>
 
 		<PackageIdPrefix>KeenConveyance</PackageIdPrefix>
 		<Authors>Stratos</Authors>
@@ -22,7 +22,7 @@
 		<RepositoryType>git</RepositoryType>
 		<RepositoryUrl>$(PackageProjectUrl)</RepositoryUrl>
 
-		<PackageTags>aspnetcore controller aspnetcore-controller service-call service-to-service httpclient http-client source-generator</PackageTags>
+		<PackageTags>aspnetcore controller aspnetcore-controller service-call service-to-service httpclient http-client source-generator rpc</PackageTags>
 	</PropertyGroup>
 
 	<ItemGroup Condition="'$(Configuration)' == 'Release'">

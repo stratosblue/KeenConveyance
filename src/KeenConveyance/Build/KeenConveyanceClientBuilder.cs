@@ -21,6 +21,43 @@ internal class KeenConveyanceClientBuilder : IKeenConveyanceClientBuilder
     }
 
     #endregion Public 构造函数
+}
+
+internal class KeenConveyanceClientBuilderGroupBuilder : IKeenConveyanceClientBuilderGroupBuilder
+{
+    #region Public 属性
+
+    public KeenConveyanceClientBuilderContext Context { get; }
+
+    public KeenConveyanceClientBuilderContext GroupContext { get; }
+
+    public IServiceCollection Services { get; }
+
+    #region Group Setup
+
+    public Action<IHttpClientBuilder>? GroupHttpClientSetupAction { get; }
+
+    public Action<KeenConveyanceClientOptions>? GroupOptionsSetupAction { get; }
+
+    #endregion Group Setup
+
+    #endregion Public 属性
+
+    #region Public 构造函数
+
+    public KeenConveyanceClientBuilderGroupBuilder(IServiceCollection services,
+                                                   KeenConveyanceClientBuilderContext context,
+                                                   Action<KeenConveyanceClientOptions>? groupOptionsSetupAction,
+                                                   Action<IHttpClientBuilder>? groupHttpClientSetupAction)
+    {
+        Services = services ?? throw new ArgumentNullException(nameof(services));
+        Context = context ?? throw new ArgumentNullException(nameof(context));
+        GroupContext = new();
+        GroupOptionsSetupAction = groupOptionsSetupAction;
+        GroupHttpClientSetupAction = groupHttpClientSetupAction;
+    }
+
+    #endregion Public 构造函数
 
     #region Public 方法
 
@@ -37,16 +74,9 @@ internal class KeenConveyanceClientBuilder : IKeenConveyanceClientBuilder
         return false;
     }
 
-    #endregion Public 方法
-}
-
-internal class KeenConveyanceClientBuilder<TClient> : KeenConveyanceClientBuilder, IKeenConveyanceClientBuilder<TClient>
-{
-    #region Public 构造函数
-
-    public KeenConveyanceClientBuilder(IServiceCollection services, KeenConveyanceClientBuilderContext context) : base(services, context)
+    public void CompleteClientGroupSetup()
     {
     }
 
-    #endregion Public 构造函数
+    #endregion Public 方法
 }

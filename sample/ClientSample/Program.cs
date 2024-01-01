@@ -9,12 +9,13 @@ services.AddLogging(builder => builder.AddConsole());
 services.AddKeenConveyance()
         .ConfigureClient(builder =>
         {
-            builder.AddClient<ISampleService>(httpClientBuilder =>
+            builder.BeginSetupClients()
+                   .AddClient<ISampleService>(httpClientBuilder =>
                    {
                        httpClientBuilder.ConfigureServiceAddress("http://127.0.0.1:5225");
                        //httpClientBuilder.ConfigurePathBaseHttpRequestMessageConstructor();
                    })
-                   .CompleteClientSetup();
+                   .CompleteClientsSetup();
         });
 
 await using var serviceProvider = services.BuildServiceProvider();

@@ -10,6 +10,11 @@ public abstract class ProxyClientBase : IDisposable
 {
     #region Protected 字段
 
+    /// <summary>
+    /// 客户端名称
+    /// </summary>
+    protected readonly string ClientName;
+
     /// <inheritdoc cref="IHttpRequestMessageConstructor"/>
     protected readonly IHttpRequestMessageConstructor HttpRequestMessageConstructor;
 
@@ -31,18 +36,34 @@ public abstract class ProxyClientBase : IDisposable
     /// <inheritdoc cref="ProxyClientBase"/>
     public ProxyClientBase(string clientName, HttpClient httpClient, IOptionsSnapshot<KeenConveyanceClientOptions> clientOptionsSnapshot)
     {
+        if (string.IsNullOrWhiteSpace(clientName))
+        {
+            throw new ArgumentException($"“{nameof(clientName)}”不能为 null 或空白。", nameof(clientName));
+        }
+
         if (clientOptionsSnapshot is null)
         {
             throw new ArgumentNullException(nameof(clientOptionsSnapshot));
         }
 
+        ClientName = clientName;
+
         UnderlyingHttpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+
+        var globalClientOptions = clientOptionsSnapshot.Get(Options.DefaultName);
 
         var clientOptions = clientOptionsSnapshot.Get(clientName);
 
-        JsonSerializerOptions = clientOptions.SerializerOptions;
-        ServiceAddressProvider = clientOptions.ServiceAddressProvider ?? throw new ArgumentException("must configure the service address provider before use client.");
-        HttpRequestMessageConstructor = clientOptions.HttpRequestMessageConstructor ?? throw new ArgumentException("must configure the http request message constructor before use client.");
+        JsonSerializerOptions = clientOptions.SerializerOptions
+                                ?? globalClientOptions.SerializerOptions;
+
+        ServiceAddressProvider = clientOptions.ServiceAddressProvider
+                                 ?? globalClientOptions.ServiceAddressProvider
+                                 ?? throw new ArgumentException("must configure the service address provider before use client.");
+
+        HttpRequestMessageConstructor = clientOptions.HttpRequestMessageConstructor
+                                        ?? globalClientOptions.HttpRequestMessageConstructor
+                                        ?? throw new ArgumentException("must configure the http request message constructor before use client.");
     }
 
     #endregion Public 构造函数
@@ -58,7 +79,7 @@ public abstract class ProxyClientBase : IDisposable
     /// <returns></returns>
     protected virtual async Task ExecuteRequestAsync(string entryKey, HttpContent? httpContent, CancellationToken cancellationToken)
     {
-        var serviceAddress = await ServiceAddressProvider.RequireUriAsync(cancellationToken).ConfigureAwait(false);
+        var serviceAddress = await ServiceAddressProvider.RequireUriAsync(ClientName, cancellationToken).ConfigureAwait(false);
         using var httpRequestMessage = HttpRequestMessageConstructor.CreateHttpRequestMessage(serviceAddress, entryKey, httpContent);
 
         using var httpResponseMessage = await SendHttpRequestMessageAsync(entryKey, httpRequestMessage, cancellationToken).ConfigureAwait(false);
@@ -76,7 +97,7 @@ public abstract class ProxyClientBase : IDisposable
     /// <returns></returns>
     protected virtual async Task<TResult?> ExecuteRequestAsync<TResult>(string entryKey, HttpContent? httpContent, CancellationToken cancellationToken)
     {
-        var serviceAddress = await ServiceAddressProvider.RequireUriAsync(cancellationToken).ConfigureAwait(false);
+        var serviceAddress = await ServiceAddressProvider.RequireUriAsync(ClientName, cancellationToken).ConfigureAwait(false);
         using var httpRequestMessage = HttpRequestMessageConstructor.CreateHttpRequestMessage(serviceAddress, entryKey, httpContent);
 
         using var httpResponseMessage = await SendHttpRequestMessageAsync(entryKey, httpRequestMessage, cancellationToken).ConfigureAwait(false);
@@ -93,7 +114,7 @@ public abstract class ProxyClientBase : IDisposable
     /// <returns></returns>
     protected virtual async Task<string> ExecuteRequestWithRawResultAsync(string entryKey, HttpContent? httpContent, CancellationToken cancellationToken)
     {
-        var serviceAddress = await ServiceAddressProvider.RequireUriAsync(cancellationToken).ConfigureAwait(false);
+        var serviceAddress = await ServiceAddressProvider.RequireUriAsync(ClientName, cancellationToken).ConfigureAwait(false);
         using var httpRequestMessage = HttpRequestMessageConstructor.CreateHttpRequestMessage(serviceAddress, entryKey, httpContent);
 
         using var httpResponseMessage = await SendHttpRequestMessageAsync(entryKey, httpRequestMessage, cancellationToken).ConfigureAwait(false);

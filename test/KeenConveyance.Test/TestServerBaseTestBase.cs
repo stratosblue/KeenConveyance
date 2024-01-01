@@ -60,10 +60,14 @@ public abstract class TestServerBaseTestBase<TTestStartup> where TTestStartup : 
 
     protected abstract IServiceCollection ConfigureServices(IServiceCollection services);
 
-    protected virtual void ConfigureWithTestServer<T>(IKeenConveyanceHttpClientBuilder<T> httpClientBuilder) where T : class
+    protected virtual void ConfigureWithTestServer(IHttpClientBuilder httpClientBuilder)
     {
-        httpClientBuilder.ConfigureServiceAddress(TestServer.BaseAddress);
         httpClientBuilder.ConfigurePrimaryHttpMessageHandler(() => TestServer.CreateHandler());
+    }
+
+    protected virtual void ConfigureWithTestServer(KeenConveyanceClientOptions options)
+    {
+        options.ServiceAddressProvider = new FixedServiceAddressProvider(TestServer.BaseAddress);
     }
 
     #endregion Protected 方法

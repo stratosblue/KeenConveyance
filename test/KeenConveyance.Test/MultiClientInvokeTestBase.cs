@@ -16,9 +16,10 @@ public abstract class MultiClientInvokeTestBase<TTestStartup> : ClientInvokeTest
         services.AddKeenConveyance()
                 .ConfigureClient(builder =>
                 {
-                    builder.AddClient<ITestService>(ConfigureWithTestServer)
-                           .AddClient<IHelloService>(ConfigureWithTestServer)
-                           .CompleteClientSetup();
+                    builder.BeginSetupClients(ConfigureWithTestServer, ConfigureWithTestServer)
+                           .AddClient<ITestService>()
+                           .AddClient<IHelloService>()
+                           .CompleteClientsSetup();
                 });
         return services;
     }
