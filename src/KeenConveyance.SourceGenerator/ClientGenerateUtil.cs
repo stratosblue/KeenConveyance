@@ -41,10 +41,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using Microsoft.Extensions.Options;
 
 using KeenConveyance;
+using KeenConveyance.Client;
+using KeenConveyance.ModelBinding;
+using KeenConveyance.Serialization;
 
 namespace {{rootNamespace}};
 
@@ -85,13 +89,16 @@ $$"""
         {
             builder.AppendLine(
 $$"""
+
     private abstract partial class {{generateInfo.Name}}ProxyClientBase : ProxyClientBase, {{generateInfo.FullName}}
     {
         public {{generateInfo.Name}}ProxyClientBase(HttpClient httpClient, IOptionsSnapshot<KeenConveyanceClientOptions> clientOptionsSnapshot)
-            : base(CachedTypeNameAccessor<{{generateInfo.FullName}}>.DisplayName, httpClient, clientOptionsSnapshot)
+            : base(CachedTypeNameAccessor<{{generateInfo.FullName}}>.DisplayName, httpClient, clientOptionsSnapshot, GeneratedMethodDescriptors)
         {
         }
 """);
+
+            (MethodGenerateInfo Method, string CreateExpresssion, string ParametersExpression)[] methodDescriptorCreateExpressionInfo = new (MethodGenerateInfo Method, string CreateExpresssion, string ParametersExpression)[generateInfo.Methods.Items.Length];
 
             for (int i = 0; i < generateInfo.Methods.Items.Length; i++)
             {
@@ -102,10 +109,28 @@ $$"""
                 var parameterString = string.Join(", ", parameters.Select(m => $"{m.TypeName} {m.Name}"));
 
                 var cancellationTokenParameter = methodGenerateInfo.CancellationToken;
+                var cancellationTokenAccessExpressionString = cancellationTokenParameter?.Name ?? "default";
 
-                var createHttpContextString = (cancellationTokenParameter is null ? parameters.Length > 0 : parameters.Length > 1)
-                                              ? $"new InternalStreamJsonHttpContent_{i}({string.Join(", ", parameters.Select(m => m.Name))}, JsonSerializerOptions);"
-                                              : "null;";
+                var noCancellationTokenParameters = parameters.Where(m => !SymbolEqualityComparer.Default.Equals(cancellationTokenParameter?.ParameterSymbol, m.ParameterSymbol))
+                                                              .ToArray();
+
+                var entryKey = GenerateEntryKey(generateInfo, methodGenerateInfo, noCancellationTokenParameters);
+
+                var parameterDescriptorsCreateExpression = noCancellationTokenParameters.Length == 0
+                                                           ? "Array.Empty<ParameterDescriptor>()"
+                                                           : $"new ParameterDescriptor[]{{ {string.Join(", ", noCancellationTokenParameters.Select((parameter, index) => $"new({index}, \"{parameter.Name}\", typeof({parameter.ParameterSymbol.Type.ToFullyQualifiedString()}))"))} }}";
+
+                methodDescriptorCreateExpressionInfo[i] = (methodGenerateInfo,
+                                                           $"new MethodDescriptor(\"{entryKey}\", {parameterDescriptorsCreateExpression})",
+                                                           parameterString);
+
+                var createHttpContextString = "null;";
+                var hasParameter = cancellationTokenParameter is null ? parameters.Length > 0 : parameters.Length > 1;
+                if (hasParameter)
+                {
+                    var parametersAccessAllExpressionString = string.Join(", ", parameters.Select(m => m.Name));
+                    createHttpContextString = $"new InternalRequestHttpContent_{i}({parametersAccessAllExpressionString}, ObjectSerializer);";
+                }
 
                 var executeRequestString = "ExecuteRequestWithRawResultAsync";
                 var returnExpressionString = "return executeTask;";
@@ -139,50 +164,25 @@ $$"""
                     }
                 }
 
-                string entryKey;
-                if (parameters.Length > 0)
-                {
-                    var parameterRawString = string.Join(", ", parameters.Select(m => GetTypeName(m.ParameterSymbol.Type)));
-                    var parameterSignature = URIEncoder.EncodeAsString(Crc32.Hash(Encoding.UTF8.GetBytes(parameterRawString)));
-                    entryKey = $"{generateInfo.Alias}:{methodGenerateInfo.Alias}@{parameterSignature}";
-
-                    static string GetTypeName(ITypeSymbol typeSymbol)
-                    {
-                        if (typeSymbol is INamedTypeSymbol namedTypeSymbol
-                            && namedTypeSymbol.IsGenericType)
-                        {
-                            var fullName = namedTypeSymbol.ConstructedFrom.ToDisplayString(FullyQualifiedFormatWithOutGlobalAndSpecialTypes);
-                            fullName = fullName.Substring(0, fullName.IndexOf('<'));
-                            return $"{fullName}<{string.Join(", ", namedTypeSymbol.TypeArguments.Select(GetTypeName))}>";
-                        }
-                        return typeSymbol.ToDisplayString(FullyQualifiedFormatWithOutGlobalAndSpecialTypes);
-                    }
-                }
-                else
-                {
-                    entryKey = $"{generateInfo.Alias}:{methodGenerateInfo.Alias}";
-                }
-
                 builder.AppendLine(
 $$"""
         /// <inheritdoc/>
         public virtual {{methodGenerateInfo.MethodSymbol.ReturnType.ToFullyQualifiedString()}} {{methodGenerateInfo.Name}}({{parameterString}})
         {
             HttpContent? httpContent = {{createHttpContextString}}
-            var executeTask = {{executeRequestString}}("{{entryKey}}", httpContent, {{cancellationTokenParameter?.Name ?? "default"}});
+
+            var executeTask = {{executeRequestString}}("{{entryKey}}", httpContent, {{cancellationTokenAccessExpressionString}});
             {{returnExpressionString}}
         }
 """);
-                parameters = parameters.Where(m => !SymbolEqualityComparer.Default.Equals(cancellationTokenParameter?.ParameterSymbol, m.ParameterSymbol))
-                                       .ToArray();
 
-                if (parameters.Length > 0)
+                if (noCancellationTokenParameters.Length > 0)
                 {
                     builder.AppendLine();
 
                     builder.AppendLine(
 $$"""
-        private partial class InternalStreamJsonHttpContent_{{i}} : StreamJsonHttpContent
+        private partial class InternalRequestHttpContent_{{i}} : MultipleObjectHttpContent
         {
 """);
                     foreach (var parameter in parameters)
@@ -194,8 +194,8 @@ $$"""
 
                     builder.AppendLine(
 $$"""
-            public InternalStreamJsonHttpContent_{{i}}({{parameterString}}, JsonSerializerOptions jsonSerializerOptions)
-                : base(jsonSerializerOptions, {{cancellationTokenParameter?.Name ?? "default"}})
+            public InternalRequestHttpContent_{{i}}({{parameterString}}, IObjectSerializer objectSerializer)
+                : base(objectSerializer, {{cancellationTokenParameter?.Name ?? "default"}})
             {
 """);
 
@@ -209,48 +209,32 @@ $$"""
             }
 
             /// <inheritdoc/>
-            protected override ValueTask WriteContentAsync(Utf8JsonWriter jsonWriter)
+            protected override async Task WriteContentAsync(IMultipleObjectStreamSerializer serializer)
             {
 """);
-                    foreach (var parameter in parameters)
+                    foreach (var parameter in noCancellationTokenParameters)
                     {
-                        switch (parameter.TypeJsonKind)
-                        {
-                            case TypeJsonKind.Boolean:
-                                builder.AppendLine($"                jsonWriter.WriteBoolean(\"{parameter.Name}\", _{parameter.Name});");
-                                break;
-
-                            case TypeJsonKind.Number:
-                                builder.AppendLine($"                jsonWriter.WriteNumber(\"{parameter.Name}\", _{parameter.Name});");
-                                break;
-
-                            case TypeJsonKind.String:
-                                builder.AppendLine($"                jsonWriter.WriteString(\"{parameter.Name}\", _{parameter.Name});");
-                                break;
-
-                            case TypeJsonKind.Object:
-                                builder.AppendLine($"""
-                                                                         jsonWriter.WritePropertyName("{parameter.Name}");
-                                                                         JsonSerializer.Serialize(jsonWriter,  _{parameter.Name}, JsonSerializerOptions);
-                                                         """);
-
-                                break;
-
-                            case TypeJsonKind.None:
-                            default:
-                                break;
-                        }
+                        builder.AppendLine($"                await serializer.WriteAsync(_{parameter.Name}, CancellationToken).ConfigureAwait(false);");
                     }
 
                     builder.AppendLine(
 """
-                return default;
             }
         }
 """);
                 }
             }
-         
+
+            builder.AppendLine(
+$$"""
+
+        protected static readonly MethodDescriptorCollection GeneratedMethodDescriptors = new MethodDescriptorCollection(new []
+        {
+{{string.Join(",\r\n", methodDescriptorCreateExpressionInfo.Select((m, index) => $"            // index[{index}] -> {m.Method.MethodSymbol.ToFullyQualifiedString()}({m.ParametersExpression})\r\n            {m.CreateExpresssion}"))}}
+        });
+
+""");
+
             builder.AppendLine("    }");
         }
 
@@ -260,4 +244,30 @@ $$"""
     }
 
     #endregion Public 方法
+
+    private static string GenerateEntryKey(ServiceGenerateInfo generateInfo, MethodGenerateInfo methodGenerateInfo, ParameterGenerateInfo[] noCancellationTokenParameters)
+    {
+        if (noCancellationTokenParameters.Length > 0)
+        {
+            var parameterRawString = string.Join(", ", noCancellationTokenParameters.Select(m => GetTypeName(m.ParameterSymbol.Type)));
+            var parameterSignature = URIEncoder.EncodeAsString(Crc32.Hash(Encoding.UTF8.GetBytes(parameterRawString)));
+            return $"{generateInfo.Alias}:{methodGenerateInfo.Alias}@{parameterSignature}";
+
+            static string GetTypeName(ITypeSymbol typeSymbol)
+            {
+                if (typeSymbol is INamedTypeSymbol namedTypeSymbol
+                    && namedTypeSymbol.IsGenericType)
+                {
+                    var fullName = namedTypeSymbol.ConstructedFrom.ToDisplayString(FullyQualifiedFormatWithOutGlobalAndSpecialTypes);
+                    fullName = fullName.Substring(0, fullName.IndexOf('<'));
+                    return $"{fullName}<{string.Join(", ", namedTypeSymbol.TypeArguments.Select(GetTypeName))}>";
+                }
+                return typeSymbol.ToDisplayString(FullyQualifiedFormatWithOutGlobalAndSpecialTypes);
+            }
+        }
+        else
+        {
+            return $"{generateInfo.Alias}:{methodGenerateInfo.Alias}";
+        }
+    }
 }

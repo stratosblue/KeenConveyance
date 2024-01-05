@@ -5,7 +5,7 @@ namespace KeenConveyance.AspNetCore;
 /// <summary>
 /// AspNetCore MvcEndpoint 匹配器，用于将 KeenConveyance 请求匹配到 MvcEndpoint
 /// </summary>
-public interface IKeenConveyanceMvcEndpointMatcher
+public interface IMvcEndpointMatcher
 {
     #region Public 方法
 

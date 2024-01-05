@@ -1,8 +1,8 @@
-﻿using KeenConveyance;
+﻿using ClientSample;
+using KeenConveyance;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using WebAPISample.Services;
-using ClientSample;
 
 var services = new ServiceCollection();
 services.AddLogging(builder => builder.AddConsole());

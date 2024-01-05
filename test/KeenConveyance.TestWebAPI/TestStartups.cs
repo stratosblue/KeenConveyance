@@ -1,4 +1,5 @@
-﻿using KeenConveyance.TestWebAPI.Services;
+﻿using KeenConveyance.TestWebAPI.MemoryPackSupportedTest;
+using KeenConveyance.TestWebAPI.Services;
 using Microsoft.AspNetCore.TestHost;
 
 namespace KeenConveyance.TestWebAPI;
@@ -52,6 +53,8 @@ public abstract class TestStartup : ITestStartup
 
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
+
+        builder.Services.AddKeenConveyance(options => options.ObjectSerializers.Add(new MemoryPackObjectSerializer()));
 
         if (!NoTestServer)
         {

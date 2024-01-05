@@ -1,4 +1,4 @@
-﻿namespace KeenConveyance;
+﻿namespace KeenConveyance.Client;
 
 /// <summary>
 /// 服务地址提供器

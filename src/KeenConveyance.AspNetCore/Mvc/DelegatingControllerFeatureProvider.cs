@@ -1,9 +1,9 @@
 ﻿using System.Reflection;
 using Microsoft.AspNetCore.Mvc.Controllers;
 
-namespace KeenConveyance.AspNetCore;
+namespace KeenConveyance.AspNetCore.Mvc;
 
-internal class DelegatingControllerFeatureProvider : ControllerFeatureProvider
+internal sealed class DelegatingControllerFeatureProvider : ControllerFeatureProvider
 {
     #region Private 字段
 
@@ -25,8 +25,8 @@ internal class DelegatingControllerFeatureProvider : ControllerFeatureProvider
     protected override bool IsController(TypeInfo typeInfo)
     {
         return base.IsController(typeInfo)
-               || (!typeInfo.IsInterface
-                   && _controllerPredicate(typeInfo));
+               || !typeInfo.IsInterface
+               && _controllerPredicate(typeInfo);
     }
 
     #endregion Protected 方法

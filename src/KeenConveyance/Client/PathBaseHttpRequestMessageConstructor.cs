@@ -1,7 +1,7 @@
 ﻿using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
 
-namespace KeenConveyance;
+namespace KeenConveyance.Client;
 
 /// <summary>
 /// 基于Path的 <see cref="IHttpRequestMessageConstructor"/>

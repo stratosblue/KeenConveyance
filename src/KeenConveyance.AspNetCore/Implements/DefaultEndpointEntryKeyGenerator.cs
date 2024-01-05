@@ -44,7 +44,7 @@ internal sealed class DefaultEndpointEntryKeyGenerator : IEndpointEntryKeyGenera
                     var actionMethodRawInfo = declaringTypeInterface.GetMethod(actionMethodInfo.Name, parameters.Select(static m => m.ParameterType).ToArray());
                     var methodAliasAttribute = actionMethodRawInfo?.GetCustomAttribute<AliasAttribute>();
 
-                    var parameterString = string.Join(", ", parameters.Select(m => GetTypeName(m.ParameterType)));
+                    var parameterString = string.Join(", ", parameters.Where(m => m.ParameterType != typeof(CancellationToken)).Select(m => GetTypeName(m.ParameterType)));
                     if (string.IsNullOrWhiteSpace(parameterString))
                     {
                         return $"{typeAliasAttribute?.Name ?? declaringTypeInterface.FullName}:{methodAliasAttribute?.Name ?? actionMethodInfo.Name}";

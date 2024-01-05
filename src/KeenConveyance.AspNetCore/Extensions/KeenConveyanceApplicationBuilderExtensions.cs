@@ -35,9 +35,9 @@ public static class KeenConveyanceApplicationBuilderExtensions
 
         static async Task ServeByKeenConveyanceAsync(HttpContext context, RequestDelegate next)
         {
-            var endpointProvider = context.RequestServices.GetRequiredService<IKeenConveyanceMvcEndpointMatcher>();
+            var endpointMatcher = context.RequestServices.GetRequiredService<IMvcEndpointMatcher>();
 
-            if (await endpointProvider.MatchEndpointAsync(context).ConfigureAwait(false) is Endpoint endpoint)
+            if (await endpointMatcher.MatchEndpointAsync(context).ConfigureAwait(false) is Endpoint endpoint)
             {
                 context.Items.Add(KeenConveyanceConstants.VariantRequestMarkKey, null);
 

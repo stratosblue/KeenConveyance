@@ -126,6 +126,8 @@ public class KeenConveyanceClientSourceGenerator : IIncrementalGenerator
                                         {
                                             var parameters = method.Parameters.Select(m => new ParameterGenerateInfo(m, m.Type.ToFullyQualifiedString(), m.Name, typeJsonKindAnalyzer.GetJsonKind(m.Type), typeJsonKindAnalyzer.CreateTypeGenerateInfo(m.Type)))
                                                                               .ToArray();
+
+                                            //TODO 为出现多个 CancellationToken 的情况报告错误
                                             var cancellationParameter = method.Parameters.Reverse()
                                                                               .FirstOrDefault(m => SymbolEqualityComparer.Default.Equals(cancellationTokenTypeSymbol, m.Type));
 

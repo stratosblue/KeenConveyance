@@ -6,9 +6,9 @@ using Microsoft.Extensions.Logging;
 namespace KeenConveyance.AspNetCore;
 
 /// <summary>
-/// 默认的 <inheritdoc cref="IKeenConveyanceMvcEndpointMatcher"/>
+/// 默认的 <inheritdoc cref="IMvcEndpointMatcher"/>
 /// </summary>
-public class DefaultKeenConveyanceMvcEndpointMatcher : IKeenConveyanceMvcEndpointMatcher, IDisposable
+public class DefaultMvcEndpointMatcher : IMvcEndpointMatcher, IDisposable
 {
     #region Private 字段
 
@@ -41,11 +41,11 @@ public class DefaultKeenConveyanceMvcEndpointMatcher : IKeenConveyanceMvcEndpoin
 
     #region Public 构造函数
 
-    /// <inheritdoc cref="DefaultKeenConveyanceMvcEndpointMatcher"/>
-    public DefaultKeenConveyanceMvcEndpointMatcher(IHttpRequestEntryKeyGenerator httpContextEntryKeyGenerator,
-                                                   IEndpointEntryKeyGenerator endpointEntryKeyGenerator,
-                                                   EndpointDataSource endpointDataSource,
-                                                   ILogger<DefaultKeenConveyanceMvcEndpointMatcher> logger)
+    /// <inheritdoc cref="DefaultMvcEndpointMatcher"/>
+    public DefaultMvcEndpointMatcher(IHttpRequestEntryKeyGenerator httpContextEntryKeyGenerator,
+                                     IEndpointEntryKeyGenerator endpointEntryKeyGenerator,
+                                     EndpointDataSource endpointDataSource,
+                                     ILogger<DefaultMvcEndpointMatcher> logger)
     {
         HttpContextEntryKeyGenerator = httpContextEntryKeyGenerator ?? throw new ArgumentNullException(nameof(httpContextEntryKeyGenerator));
         EndpointEntryKeyGenerator = endpointEntryKeyGenerator ?? throw new ArgumentNullException(nameof(endpointEntryKeyGenerator));
@@ -157,7 +157,7 @@ public class DefaultKeenConveyanceMvcEndpointMatcher : IKeenConveyanceMvcEndpoin
     /// <summary>
     ///
     /// </summary>
-    ~DefaultKeenConveyanceMvcEndpointMatcher()
+    ~DefaultMvcEndpointMatcher()
     {
         Dispose(disposing: false);
     }

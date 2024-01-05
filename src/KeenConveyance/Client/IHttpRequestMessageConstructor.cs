@@ -1,4 +1,4 @@
-﻿namespace KeenConveyance;
+﻿namespace KeenConveyance.Client;
 
 /// <summary>
 /// 客户端使用的 <see cref="HttpRequestMessage"/> 构造器

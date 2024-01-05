@@ -23,7 +23,7 @@ internal sealed class PathBaseHttpRequestEntryKeyGenerator : IHttpRequestEntryKe
         _serviceEntryPath = _options.ServiceEntryPath;
         if (!_serviceEntryPath.HasValue)
         {
-            throw new ArgumentException($"{nameof(optionsAccessor.Value.ServiceEntryPath)} is empty.");
+            throw new ArgumentException($"{nameof(optionsAccessor.Value.ServiceEntryPath)} is empty");
         }
 
         // 去除 /

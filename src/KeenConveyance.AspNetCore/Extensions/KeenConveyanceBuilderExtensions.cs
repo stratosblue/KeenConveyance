@@ -1,6 +1,10 @@
 ﻿using System.ComponentModel;
 using KeenConveyance;
 using KeenConveyance.AspNetCore;
+using KeenConveyance.AspNetCore.Mvc;
+using KeenConveyance.AspNetCore.Mvc.Formatters;
+using KeenConveyance.AspNetCore.Mvc.ModelBinding;
+using KeenConveyance.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -25,7 +29,13 @@ public static class KeenConveyanceBuilderExtensions
     {
         var options = new KeenConveyanceMvcOptions();
 
-        setupAction?.Invoke(options);
+        builder.Services.AddOptions<KeenConveyanceMvcOptions>();
+
+        if (setupAction is not null)
+        {
+            setupAction.Invoke(options);
+            builder.Services.Configure(setupAction);
+        };
 
         var mvcBuilder = builder.Services.AddControllers();
 
@@ -37,20 +47,24 @@ public static class KeenConveyanceBuilderExtensions
             });
         }
 
-        builder.Services.TryAddSingleton<IKeenConveyanceModelBinder, DefaultKeenConveyanceModelBinder>();
+        builder.Services.TryAddSingleton<IObjectSerializerSelector, DefaultObjectSerializerSelector>();
 
         builder.Services.TryAddSingleton<IEndpointEntryKeyGenerator, DefaultEndpointEntryKeyGenerator>();
         builder.Services.Add(options.HttpRequestEntryKeyGeneratorServiceDescriptor);
 
-        builder.Services.TryAddSingleton<IKeenConveyanceMvcEndpointMatcher, DefaultKeenConveyanceMvcEndpointMatcher>();
+        builder.Services.TryAddSingleton<IMvcEndpointMatcher, DefaultMvcEndpointMatcher>();
 
         builder.Services.Configure<MvcOptions>(options =>
         {
-            if (options.ModelBinderProviders.Any(m => m is DefaultKeenConveyanceMvcModelBinderProvider))
+            if (!options.ModelBinderProviders.Any(m => m is KeenConveyanceModelBinderProvider))
             {
-                return;
+                options.ModelBinderProviders.Insert(0, new KeenConveyanceModelBinderProvider(options.ModelBinderProviders));
             }
-            options.ModelBinderProviders.Insert(0, new DefaultKeenConveyanceMvcModelBinderProvider(options.ModelBinderProviders));
+
+            if (!options.OutputFormatters.Any(m => m is DefaultKeenConveyanceOutputFormatter))
+            {
+                options.OutputFormatters.Insert(0, new DefaultKeenConveyanceOutputFormatter());
+            }
         });
 
         return builder;

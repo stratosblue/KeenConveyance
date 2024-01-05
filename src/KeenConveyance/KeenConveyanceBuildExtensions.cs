@@ -1,5 +1,7 @@
 ﻿using System.ComponentModel;
+using KeenConveyance.Client;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 
 namespace KeenConveyance;
@@ -25,7 +27,7 @@ public static class KeenConveyanceBuildExtensions
     {
         if (builder is not KeenConveyanceClientBuilderGroupBuilder groupBuilder)
         {
-            throw new ArgumentException($"unsupported builder type -> {builder.GetType()}");
+            throw new ArgumentException($"Unsupported builder type -> \"{builder.GetType()}\"");
         }
 
         var httpClientBuilder = new KeenConveyanceHttpClientBuilder<TClient>(builder.Services.AddHttpClient<TClient>());
@@ -52,10 +54,20 @@ public static class KeenConveyanceBuildExtensions
     /// 添加 KeenConveyance
     /// </summary>
     /// <param name="services"></param>
+    /// <param name="configureOptions"></param>
     /// <returns></returns>
-    public static IKeenConveyanceBuilder AddKeenConveyance(this IServiceCollection services)
+    public static IKeenConveyanceBuilder AddKeenConveyance(this IServiceCollection services, Action<KeenConveyanceOptions>? configureOptions = null)
     {
         services.AddLogging();
+
+        services.AddOptions<KeenConveyanceJsonOptions>();
+
+        services.TryAddEnumerable(ServiceDescriptor.Transient<IConfigureOptions<KeenConveyanceOptions>, KeenConveyanceOptionsSetup>());
+
+        if (configureOptions is not null)
+        {
+            services.Configure(configureOptions);
+        }
         return new KeenConveyanceBuilder(services);
     }
 
@@ -68,6 +80,8 @@ public static class KeenConveyanceBuildExtensions
     /// <returns></returns>
     public static IKeenConveyanceClientBuilderGroupBuilder BeginSetupClients(this IKeenConveyanceClientBuilder builder, Action<KeenConveyanceClientOptions>? groupOptionsSetupAction = null, Action<IHttpClientBuilder>? groupHttpClientSetupAction = null)
     {
+        ArgumentNullException.ThrowIfNull(builder);
+
         var groupBuilder = new KeenConveyanceClientBuilderGroupBuilder(builder.Services, builder.Context, groupOptionsSetupAction, groupHttpClientSetupAction);
         return groupBuilder;
     }
@@ -81,10 +95,10 @@ public static class KeenConveyanceBuildExtensions
     /// <exception cref="ArgumentNullException"></exception>
     public static IKeenConveyanceBuilder ConfigureClient(this IKeenConveyanceBuilder builder, Action<IKeenConveyanceClientBuilder> setupAction)
     {
-        if (setupAction is null)
-        {
-            throw new ArgumentNullException(nameof(setupAction));
-        }
+        ArgumentNullException.ThrowIfNull(builder);
+        ArgumentNullException.ThrowIfNull(setupAction);
+
+        builder.Services.TryAddEnumerable(ServiceDescriptor.Transient<IConfigureOptions<KeenConveyanceClientOptions>, KeenConveyanceClientOptionsSetup>());
 
         setupAction(new KeenConveyanceClientBuilder(builder.Services, new KeenConveyanceClientBuilderContext()));
 

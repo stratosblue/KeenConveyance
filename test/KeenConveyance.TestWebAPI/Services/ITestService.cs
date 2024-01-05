@@ -1,4 +1,6 @@
-﻿namespace KeenConveyance.TestWebAPI.Services;
+﻿using MemoryPack;
+
+namespace KeenConveyance.TestWebAPI.Services;
 
 public interface ITestService : IApplicationService
 {
@@ -47,10 +49,14 @@ public interface ITestService : IApplicationService
     #endregion Public 方法
 }
 
-public record TestRequestDto(int Value1, string Value2);
+[MemoryPackable]
+public partial record TestRequestDto(int Value1, string Value2);
 
-public record TestResponseDto(int Value1, string Value2);
+[MemoryPackable]
+public partial record TestResponseDto(int Value1, string Value2);
 
-public record TestGenericRequestDto<T>(T Data, int Value1, string Value2);
+[MemoryPackable]
+public partial record TestGenericRequestDto<T>(T Data, int Value1, string Value2);
 
-public record TestGenericResponseDto<T>(T Data, int Value1, string Value2);
+[MemoryPackable]
+public partial record TestGenericResponseDto<T>(T Data, int Value1, string Value2);

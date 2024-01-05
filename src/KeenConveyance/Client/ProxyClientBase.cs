@@ -1,7 +1,9 @@
-﻿using System.Text.Json;
+﻿using System.Collections;
+using System.Runtime.CompilerServices;
+using KeenConveyance.Serialization;
 using Microsoft.Extensions.Options;
 
-namespace KeenConveyance;
+namespace KeenConveyance.Client;
 
 /// <summary>
 /// 代理客户端基础类
@@ -18,8 +20,13 @@ public abstract class ProxyClientBase : IDisposable
     /// <inheritdoc cref="IHttpRequestMessageConstructor"/>
     protected readonly IHttpRequestMessageConstructor HttpRequestMessageConstructor;
 
-    /// <inheritdoc cref="System.Text.Json.JsonSerializerOptions"/>
-    protected readonly JsonSerializerOptions JsonSerializerOptions;
+    /// <summary>
+    /// 方法描述集合
+    /// </summary>
+    protected readonly MethodDescriptorCollection MethodDescriptors;
+
+    /// <inheritdoc cref="IObjectSerializer"/>
+    protected readonly IObjectSerializer ObjectSerializer;
 
     /// <inheritdoc cref="IServiceAddressProvider"/>
     protected readonly IServiceAddressProvider ServiceAddressProvider;
@@ -31,42 +38,44 @@ public abstract class ProxyClientBase : IDisposable
 
     #endregion Protected 字段
 
-    #region Public 构造函数
+    #region Protected 构造函数
 
     /// <inheritdoc cref="ProxyClientBase"/>
-    public ProxyClientBase(string clientName, HttpClient httpClient, IOptionsSnapshot<KeenConveyanceClientOptions> clientOptionsSnapshot)
+    protected ProxyClientBase(string clientName,
+                              HttpClient httpClient,
+                              IOptionsSnapshot<KeenConveyanceClientOptions> clientOptionsSnapshot,
+                              MethodDescriptorCollection methodDescriptors)
     {
         if (string.IsNullOrWhiteSpace(clientName))
         {
             throw new ArgumentException($"“{nameof(clientName)}”不能为 null 或空白。", nameof(clientName));
         }
 
-        if (clientOptionsSnapshot is null)
-        {
-            throw new ArgumentNullException(nameof(clientOptionsSnapshot));
-        }
+        ArgumentNullException.ThrowIfNull(clientOptionsSnapshot);
 
         ClientName = clientName;
 
         UnderlyingHttpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+        MethodDescriptors = methodDescriptors ?? throw new ArgumentNullException(nameof(methodDescriptors));
 
         var globalClientOptions = clientOptionsSnapshot.Get(Options.DefaultName);
 
         var clientOptions = clientOptionsSnapshot.Get(clientName);
 
-        JsonSerializerOptions = clientOptions.SerializerOptions
-                                ?? globalClientOptions.SerializerOptions;
+        ObjectSerializer = clientOptions.ObjectSerializer
+                           ?? globalClientOptions.ObjectSerializer
+                           ?? throw new KeenConveyanceException($"No available object serializer provider for client -> \"{clientName}\"");
 
         ServiceAddressProvider = clientOptions.ServiceAddressProvider
                                  ?? globalClientOptions.ServiceAddressProvider
-                                 ?? throw new ArgumentException("must configure the service address provider before use client.");
+                                 ?? throw new KeenConveyanceException($"No available service address provider for client -> \"{clientName}\"");
 
         HttpRequestMessageConstructor = clientOptions.HttpRequestMessageConstructor
                                         ?? globalClientOptions.HttpRequestMessageConstructor
-                                        ?? throw new ArgumentException("must configure the http request message constructor before use client.");
+                                        ?? throw new KeenConveyanceException($"No available http request message constructor for client -> \"{clientName}\"");
     }
 
-    #endregion Public 构造函数
+    #endregion Protected 构造函数
 
     #region Protected 方法
 
@@ -119,9 +128,13 @@ public abstract class ProxyClientBase : IDisposable
 
         using var httpResponseMessage = await SendHttpRequestMessageAsync(entryKey, httpRequestMessage, cancellationToken).ConfigureAwait(false);
 
-        httpResponseMessage.EnsureSuccessStatusCode();
+        if (httpResponseMessage.StatusCode == System.Net.HttpStatusCode.NoContent)
+        {
+            return string.Empty;
+        }
 
-        return await httpResponseMessage.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+        //HACK 字符串特殊处理？
+        return (await ProcessResponseAsync<string>(httpResponseMessage, cancellationToken).ConfigureAwait(false))!;
     }
 
     /// <summary>
@@ -140,9 +153,9 @@ public abstract class ProxyClientBase : IDisposable
 
         httpResponseMessage.EnsureSuccessStatusCode();
 
-        using var responseStream = await httpResponseMessage.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+        var responseStream = await httpResponseMessage.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
 
-        return await JsonSerializer.DeserializeAsync<TResult>(responseStream, options: JsonSerializerOptions, cancellationToken).ConfigureAwait(false);
+        return await ObjectSerializer.DeserializeAsync<TResult>(responseStream, cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -154,6 +167,7 @@ public abstract class ProxyClientBase : IDisposable
     /// <returns></returns>
     protected virtual Task<HttpResponseMessage> SendHttpRequestMessageAsync(string entryKey, HttpRequestMessage httpRequestMessage, in CancellationToken cancellationToken)
     {
+        httpRequestMessage.Headers.TryAddWithoutValidation("Accept", ObjectSerializer.SupportedMediaType);
         return UnderlyingHttpClient.SendAsync(httpRequestMessage, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
     }
 
@@ -189,4 +203,67 @@ public abstract class ProxyClientBase : IDisposable
     }
 
     #endregion Dispose
+
+    #region Protected 类
+
+    /// <summary>
+    /// 方法描述符集合
+    /// </summary>
+    /// <param name="methodDescriptors"></param>
+    protected sealed class MethodDescriptorCollection(IEnumerable<MethodDescriptor> methodDescriptors) : IEnumerable<MethodDescriptor>
+    {
+        #region Private 字段
+
+        private readonly MethodDescriptor[] _methodDescriptors = methodDescriptors.ToArray();
+
+        #endregion Private 字段
+
+        #region Public 属性
+
+        /// <summary>
+        /// 方法总数
+        /// </summary>
+        public int Count => _methodDescriptors.Length;
+
+        #endregion Public 属性
+
+        #region Public 索引器
+
+        /// <summary>
+        /// 获取指定 <paramref name="index"/> 的 <see cref="MethodDescriptor"/>
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        public MethodDescriptor this[int index]
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => _methodDescriptors[index];
+        }
+
+        /// <summary>
+        /// 获取指定 <paramref name="index"/> 的 <see cref="MethodDescriptor"/> 的指定 <paramref name="parameterIndex"/> 的 <see cref="ParameterDescriptor"/>
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="parameterIndex"></param>
+        /// <returns></returns>
+        public ParameterDescriptor this[int index, int parameterIndex]
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => _methodDescriptors[index].Parameters[parameterIndex];
+        }
+
+        #endregion Public 索引器
+
+        #region Public 方法
+
+        /// <inheritdoc/>
+        public IEnumerator<MethodDescriptor> GetEnumerator() => ((IEnumerable<MethodDescriptor>)_methodDescriptors).GetEnumerator();
+
+        /// <inheritdoc/>
+        IEnumerator IEnumerable.GetEnumerator() => _methodDescriptors.GetEnumerator();
+
+        #endregion Public 方法
+    }
+
+    #endregion Protected 类
 }

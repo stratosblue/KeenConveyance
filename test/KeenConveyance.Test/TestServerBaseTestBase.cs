@@ -1,4 +1,5 @@
-﻿using KeenConveyance.TestWebAPI;
+﻿using KeenConveyance.Client;
+using KeenConveyance.TestWebAPI;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;

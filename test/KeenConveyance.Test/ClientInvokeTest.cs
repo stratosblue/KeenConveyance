@@ -1,6 +1,37 @@
-﻿using KeenConveyance.TestWebAPI;
+﻿using KeenConveyance.Client;
+using KeenConveyance.TestWebAPI;
+using KeenConveyance.TestWebAPI.MemoryPackSupportedTest;
 
 namespace KeenConveyance;
+
+[TestClass]
+public class PathBaseClientInvokeTest : ClientInvokeTestBase<PathBaseTestStartup>
+{
+    #region Protected 方法
+
+    protected override void ConfigureWithTestServer(KeenConveyanceClientOptions options)
+    {
+        base.ConfigureWithTestServer(options);
+        options.HttpRequestMessageConstructor = new PathBaseHttpRequestMessageConstructor();
+    }
+
+    #endregion Protected 方法
+}
+
+[TestClass]
+public class QueryBaseClientInvokeMemoryPackTest : ClientInvokeTestBase<QueryBaseTestStartup>
+{
+    #region Protected 方法
+
+    protected override void ConfigureWithTestServer(KeenConveyanceClientOptions options)
+    {
+        base.ConfigureWithTestServer(options);
+        options.HttpRequestMessageConstructor = new QueryBaseHttpRequestMessageConstructor();
+        options.ObjectSerializer = new MemoryPackObjectSerializer();
+    }
+
+    #endregion Protected 方法
+}
 
 [TestClass]
 public class QueryBaseClientInvokeTest : ClientInvokeTestBase<QueryBaseTestStartup>
@@ -17,7 +48,7 @@ public class QueryBaseClientInvokeTest : ClientInvokeTestBase<QueryBaseTestStart
 }
 
 [TestClass]
-public class PathBaseClientInvokeTest : ClientInvokeTestBase<PathBaseTestStartup>
+public class PathBaseClientInvokeMemoryPackTest : ClientInvokeTestBase<PathBaseTestStartup>
 {
     #region Protected 方法
 
@@ -25,6 +56,7 @@ public class PathBaseClientInvokeTest : ClientInvokeTestBase<PathBaseTestStartup
     {
         base.ConfigureWithTestServer(options);
         options.HttpRequestMessageConstructor = new PathBaseHttpRequestMessageConstructor();
+        options.ObjectSerializer = new MemoryPackObjectSerializer();
     }
 
     #endregion Protected 方法

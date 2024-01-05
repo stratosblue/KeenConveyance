@@ -1,22 +1,19 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Text.Encodings.Web;
+﻿using System.Text.Encodings.Web;
 using System.Text.Json;
 
 namespace KeenConveyance;
 
 /// <summary>
-/// KeenConveyance 客户端选项
+/// KeenConveyance Json 选项
 /// </summary>
-public class KeenConveyanceClientOptions
+public class KeenConveyanceJsonOptions
 {
     #region SystemTextJson
-
-    private JsonSerializerOptions? _serializerOptions = null;
 
     /// <summary>
     /// see https://github.com/dotnet/aspnetcore/blob/release/8.0/src/Http/Http.Extensions/src/JsonOptions.cs
     /// </summary>
-    internal static readonly JsonSerializerOptions DefaultSerializerOptions = new(JsonSerializerDefaults.Web)
+    internal static readonly JsonSerializerOptions DefaultJsonSerializerOptions = new(JsonSerializerDefaults.Web)
     {
         // Web defaults don't use the relaxed JSON escaping encoder.
         //
@@ -33,27 +30,15 @@ public class KeenConveyanceClientOptions
     };
 
     /// <summary>
-    /// Json序列化选项
-    /// </summary>
-    public JsonSerializerOptions SerializerOptions { get => _serializerOptions ??= GetDefaultSerializerOptions(); set => _serializerOptions = value; }
-
-    /// <summary>
     /// 获取默认的 Json序列化选项
     /// </summary>
     /// <returns></returns>
-    public static JsonSerializerOptions GetDefaultSerializerOptions() => new(DefaultSerializerOptions);
+    public static JsonSerializerOptions GetDefaultJsonSerializerOptions() => new(DefaultJsonSerializerOptions);
 
     #endregion SystemTextJson
 
-    #region Public 属性
-
-    /// <inheritdoc cref="IHttpRequestMessageConstructor"/>
-    [Required]
-    public IHttpRequestMessageConstructor? HttpRequestMessageConstructor { get; set; } = new QueryBaseHttpRequestMessageConstructor(KeenConveyanceConstants.DefaultEntryPath, QueryBaseEntryKeyOptions.DefaultQueryKey);
-
-    /// <inheritdoc cref="IServiceAddressProvider"/>
-    [Required]
-    public IServiceAddressProvider? ServiceAddressProvider { get; set; }
-
-    #endregion Public 属性
+    /// <summary>
+    /// Json序列化选项
+    /// </summary>
+    public JsonSerializerOptions JsonSerializerOptions { get; set; } = GetDefaultJsonSerializerOptions();
 }
