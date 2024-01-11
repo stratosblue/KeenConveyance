@@ -12,7 +12,7 @@ public class KeenConveyanceOptions
     /// <summary>
     /// 默认使用的 <see cref="IObjectSerializer"/>
     /// </summary>
-    public IObjectSerializer DefaultObjectSerializer { get; internal set; } = null!;
+    public IObjectSerializer DefaultObjectSerializer { get; set; } = null!;
 
     /// <summary>
     ///  <see cref="IObjectSerializer"/> 列表

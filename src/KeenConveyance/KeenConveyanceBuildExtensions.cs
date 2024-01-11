@@ -107,6 +107,22 @@ public static class KeenConveyanceBuildExtensions
 
     #endregion Public 方法
 
+    /// <summary>
+    /// 配置应用于当前客户端的配置
+    /// </summary>
+    /// <typeparam name="TClient"></typeparam>
+    /// <param name="builder"></param>
+    /// <param name="configureOptions"></param>
+    /// <returns></returns>
+    public static IKeenConveyanceHttpClientBuilder<TClient> ConfigureOptions<TClient>(this IKeenConveyanceHttpClientBuilder<TClient> builder, Action<KeenConveyanceClientOptions> configureOptions)
+        where TClient : class
+    {
+        builder.Services.AddOptions<KeenConveyanceClientOptions>(CachedTypeNameAccessor<TClient>.DisplayName)
+                        .Configure(configureOptions);
+
+        return builder;
+    }
+
     #region ServiceAddressProvider
 
     /// <summary>
@@ -145,13 +161,10 @@ public static class KeenConveyanceBuildExtensions
     public static IKeenConveyanceHttpClientBuilder<TClient> ConfigureServiceAddress<TClient>(this IKeenConveyanceHttpClientBuilder<TClient> builder, IServiceAddressProvider serviceAddressProvider)
         where TClient : class
     {
-        builder.Services.AddOptions<KeenConveyanceClientOptions>(CachedTypeNameAccessor<TClient>.DisplayName)
-                        .Configure(options =>
-                        {
-                            options.ServiceAddressProvider = serviceAddressProvider;
-                        });
-
-        return builder;
+        return builder.ConfigureOptions(options =>
+               {
+                   options.ServiceAddressProvider = serviceAddressProvider;
+               });
     }
 
     /// <summary>
@@ -187,13 +200,10 @@ public static class KeenConveyanceBuildExtensions
     public static IKeenConveyanceHttpClientBuilder<TClient> ConfigureHttpRequestMessageConstructor<TClient>(this IKeenConveyanceHttpClientBuilder<TClient> builder, IHttpRequestMessageConstructor httpRequestMessageConstructor)
         where TClient : class
     {
-        builder.Services.AddOptions<KeenConveyanceClientOptions>(CachedTypeNameAccessor<TClient>.DisplayName)
-                        .Configure(options =>
-                        {
-                            options.HttpRequestMessageConstructor = httpRequestMessageConstructor;
-                        });
-
-        return builder;
+        return builder.ConfigureOptions(options =>
+               {
+                   options.HttpRequestMessageConstructor = httpRequestMessageConstructor;
+               });
     }
 
     /// <summary>
