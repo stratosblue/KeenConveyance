@@ -1,4 +1,4 @@
-<Project>
+﻿<Project>
 	<PropertyGroup>
 		<TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
 
@@ -10,7 +10,7 @@
 	</PropertyGroup>
 
 	<PropertyGroup>
-		<Version>1.0.0-preview-004</Version>
+		<Version>1.0.0-preview-005</Version>
 
 		<Description>A `Asp.Net Core Controller` service call RPC framework based on `interface`. 基于 `interface` 的 `Asp.Net Core Controller` 服务调用RPC框架。</Description>
 

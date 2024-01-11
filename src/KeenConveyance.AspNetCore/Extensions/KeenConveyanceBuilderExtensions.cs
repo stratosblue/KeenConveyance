@@ -8,6 +8,7 @@ using KeenConveyance.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 
 namespace Microsoft.AspNetCore.Builder;
 
@@ -27,6 +28,8 @@ public static class KeenConveyanceBuilderExtensions
     /// <returns></returns>
     public static IKeenConveyanceBuilder ConfigureService(this IKeenConveyanceBuilder builder, Action<KeenConveyanceMvcOptions>? setupAction = null)
     {
+        builder.Services.TryAddEnumerable(ServiceDescriptor.Transient<IConfigureOptions<KeenConveyanceJsonOptions>, KeenConveyanceJsonOptionsSetup>());
+
         var options = new KeenConveyanceMvcOptions();
 
         builder.Services.AddOptions<KeenConveyanceMvcOptions>();
