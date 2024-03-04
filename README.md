@@ -15,7 +15,7 @@ A `Asp.Net Core Controller` service call RPC framework based on `interface`. 基
  - 虽然支持所有标准的 `Controller` 功能且执行其流程, 但框架并非按照 `Controller` 定义进行请求, 框架的请求中会忽略 `[FromQuery]`、`[FromRoute]` 等定义直接使用 `ModelBinder` 从 `Body` 进行绑定;
 	- 即: 如果请求由框架发起, 则依赖原始 `HttpContext`	信息的功能可能不能正常工作, 例如请求的 `Query`、`Path` 中不包含 `Action` 的信息;
  - 方法参数建议使用简单类型或 `DTO`: 除 `CancellationToken` 外, 客户端会将方法参数都序列化后传递给服务端，服务端从 `Body` 进行绑定, 对一些特殊的参数不支持如 `IFormFile` 等;
- - 框架对接口定义的 `命名空间`、`方法名称`、`参数类型`、`参数顺序`、`参数名称` 强依赖, 需要保证客户端与服务端接口定义一致;
+ - 框架对接口定义的 `命名空间`、`方法名称`、`参数类型`、`参数顺序` 强依赖, 需要保证客户端与服务端接口定义一致;
  
 ## 2. 快速开始
 
@@ -95,6 +95,8 @@ services.AddKeenConveyance(options =>
                 //options.ObjectSerializer = xxx;   //配置客户端全局使用的序列化器
                 //options.HttpRequestMessageConstructor = xxx;  //配置客户端全局使用的HttpRequestMessage构造器
                 //options.ServiceAddressProvider = xxx; //配置客户端全局使用的服务地址提供器
+                //options.PrePreparePayloadData = true; //配置客户端请求时预准备请求数据，以确保Http请求包含有效的 Content-Length 头
+                //options.BufferInitialCapacity = 1024; //配置客户端预准备请求数据时的Buffer初始化大小
             });
 
             //配置客户端
