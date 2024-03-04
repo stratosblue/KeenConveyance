@@ -129,7 +129,7 @@ $$"""
                 if (hasParameter)
                 {
                     var parametersAccessAllExpressionString = string.Join(", ", parameters.Select(m => m.Name));
-                    createHttpContextString = $"new InternalRequestHttpContent_{i}({parametersAccessAllExpressionString}, ObjectSerializer);";
+                    createHttpContextString = $"PrePreparePayloadData ? CreateBufferHttpContent_{i}({parametersAccessAllExpressionString}) : new InternalRequestHttpContent_{i}({parametersAccessAllExpressionString}, ObjectSerializer);";
                 }
 
                 var executeRequestString = "ExecuteRequestWithRawResultAsync";
@@ -180,6 +180,32 @@ $$"""
                 {
                     builder.AppendLine();
 
+                    #region CreateBufferHttpContent
+
+                    builder.AppendLine(
+$$"""
+        private HttpContent? CreateBufferHttpContent_{{i}}({{parameterString}})
+        {
+            var bufferWriter = new PooledBufferWriter(BufferInitialCapacity);
+            using var streamSerializer = ObjectSerializer.CreateObjectStreamSerializer(bufferWriter);
+            streamSerializer.Start();
+""");
+
+                    foreach (var parameter in noCancellationTokenParameters)
+                    {
+                        builder.AppendLine($"            streamSerializer.Write({parameter.Name});");
+                    }
+
+                    builder.AppendLine(
+$$"""
+            streamSerializer.Finish();
+            return new BufferHttpContent(ObjectSerializer.SupportedMediaType.MediaType, bufferWriter, {{cancellationTokenAccessExpressionString}});
+        }
+
+""");
+
+                    #endregion CreateBufferHttpContent
+
                     builder.AppendLine(
 $$"""
         private partial class InternalRequestHttpContent_{{i}} : MultipleObjectHttpContent
@@ -209,7 +235,7 @@ $$"""
             }
 
             /// <inheritdoc/>
-            protected override async Task WriteContentAsync(IMultipleObjectStreamSerializer serializer)
+            protected override async Task WriteContentAsync(IMultipleObjectAsyncStreamSerializer serializer)
             {
 """);
                     foreach (var parameter in noCancellationTokenParameters)

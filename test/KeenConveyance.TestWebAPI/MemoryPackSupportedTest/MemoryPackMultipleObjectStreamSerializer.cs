@@ -1,4 +1,5 @@
-﻿using System.Buffers.Binary;
+﻿using System.Buffers;
+using System.Buffers.Binary;
 using KeenConveyance.Serialization;
 
 namespace KeenConveyance.TestWebAPI.MemoryPackSupportedTest;
@@ -9,15 +10,15 @@ public sealed class MemoryPackMultipleObjectStreamSerializer : IMultipleObjectSt
 
     #region Private 字段
 
-    private readonly Stream _stream;
+    private readonly IBufferWriter<byte> _bufferWriter;
 
     #endregion Private 字段
 
     #region Public 构造函数
 
-    public MemoryPackMultipleObjectStreamSerializer(Stream stream, int bufferSize = 4096)
+    public MemoryPackMultipleObjectStreamSerializer(IBufferWriter<byte> bufferWriter)
     {
-        _stream = stream ?? throw new ArgumentNullException(nameof(stream));
+        _bufferWriter = bufferWriter ?? throw new ArgumentNullException(nameof(bufferWriter));
     }
 
     #endregion Public 构造函数
@@ -28,36 +29,28 @@ public sealed class MemoryPackMultipleObjectStreamSerializer : IMultipleObjectSt
     {
     }
 
-    public async ValueTask FinishAsync(CancellationToken cancellationToken)
+    public void Finish()
     {
-        await _stream.FlushAsync(cancellationToken).ConfigureAwait(false);
     }
 
-    public ValueTask StartAsync(CancellationToken cancellationToken)
+    public void Start()
     {
-        return ValueTask.CompletedTask;
     }
 
-    public async ValueTask WriteAsync<T>(T? value, CancellationToken cancellationToken)
+    public void Write<T>(T? value)
     {
         var data = MemoryPack.MemoryPackSerializer.Serialize(value);
-        var lengthData = new byte[sizeof(int)];
-
-        BinaryPrimitives.WriteInt32LittleEndian(lengthData, data.Length);
-
-        await _stream.WriteAsync(lengthData, cancellationToken).ConfigureAwait(false);
-        await _stream.WriteAsync(data, cancellationToken).ConfigureAwait(false);
+        BinaryPrimitives.WriteInt32LittleEndian(_bufferWriter.GetSpan(sizeof(int)), data.Length);
+        _bufferWriter.Advance(sizeof(int));
+        _bufferWriter.Write(data);
     }
 
-    public async ValueTask WriteAsync(object? value, Type type, CancellationToken cancellationToken)
+    public void Write(object? value, Type type)
     {
-        var data = MemoryPack.MemoryPackSerializer.Serialize(value);
-        var lengthData = new byte[sizeof(int)];
-
-        BinaryPrimitives.WriteInt32LittleEndian(lengthData, data.Length);
-
-        await _stream.WriteAsync(lengthData, cancellationToken).ConfigureAwait(false);
-        await _stream.WriteAsync(data, cancellationToken).ConfigureAwait(false);
+        var data = MemoryPack.MemoryPackSerializer.Serialize(type, value);
+        BinaryPrimitives.WriteInt32LittleEndian(_bufferWriter.GetSpan(sizeof(int)), data.Length);
+        _bufferWriter.Advance(sizeof(int));
+        _bufferWriter.Write(data);
     }
 
     #endregion Public 方法

@@ -17,9 +17,14 @@ public class MemoryPackObjectSerializer : ObjectSerializer
 
     #region Public 方法
 
-    public override IMultipleObjectStreamSerializer CreateObjectStreamSerializer(Stream stream)
+    public override IMultipleObjectAsyncStreamSerializer CreateObjectStreamSerializer(Stream stream)
     {
-        return new MemoryPackMultipleObjectStreamSerializer(stream);
+        return new MemoryPackMultipleObjectAsyncStreamSerializer(stream);
+    }
+
+    public override IMultipleObjectStreamSerializer CreateObjectStreamSerializer(IBufferWriter<byte> bufferWriter)
+    {
+        return new MemoryPackMultipleObjectStreamSerializer(bufferWriter);
     }
 
     public override ValueTask<T?> DeserializeAsync<T>(Stream stream, CancellationToken cancellationToken) where T : default

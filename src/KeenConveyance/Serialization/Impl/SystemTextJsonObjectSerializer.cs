@@ -46,9 +46,16 @@ public sealed class SystemTextJsonObjectSerializer : ObjectSerializer
     #region Public 方法
 
     /// <inheritdoc/>
-    public override IMultipleObjectStreamSerializer CreateObjectStreamSerializer(Stream stream)
+    public override IMultipleObjectAsyncStreamSerializer CreateObjectStreamSerializer(Stream stream)
     {
         var jsonWriter = new Utf8JsonWriter(stream, _jsonWriterOptions);
+        return new SystemTextJsonMultipleObjectAsyncStreamSerializer(jsonWriter, _jsonSerializerOptions);
+    }
+
+    /// <inheritdoc/>
+    public override IMultipleObjectStreamSerializer CreateObjectStreamSerializer(IBufferWriter<byte> bufferWriter)
+    {
+        var jsonWriter = new Utf8JsonWriter(bufferWriter, _jsonWriterOptions);
         return new SystemTextJsonMultipleObjectStreamSerializer(jsonWriter, _jsonSerializerOptions);
     }
 
@@ -120,7 +127,7 @@ public sealed class SystemTextJsonObjectSerializer : ObjectSerializer
 
     #region Private 类
 
-    private sealed class SystemTextJsonMultipleObjectStreamSerializer : IMultipleObjectStreamSerializer
+    private sealed class SystemTextJsonMultipleObjectAsyncStreamSerializer : IMultipleObjectAsyncStreamSerializer
     {
         #region Private 字段
 
@@ -137,7 +144,7 @@ public sealed class SystemTextJsonObjectSerializer : ObjectSerializer
 
         #region Public 构造函数
 
-        public SystemTextJsonMultipleObjectStreamSerializer(Utf8JsonWriter utf8JsonWriter, JsonSerializerOptions jsonSerializerOptions)
+        public SystemTextJsonMultipleObjectAsyncStreamSerializer(Utf8JsonWriter utf8JsonWriter, JsonSerializerOptions jsonSerializerOptions)
         {
             _utf8JsonWriter = utf8JsonWriter ?? throw new ArgumentNullException(nameof(utf8JsonWriter));
             _jsonSerializerOptions = jsonSerializerOptions ?? throw new ArgumentNullException(nameof(jsonSerializerOptions));
@@ -195,6 +202,122 @@ public sealed class SystemTextJsonObjectSerializer : ObjectSerializer
 
             JsonSerializer.Serialize(_utf8JsonWriter, value, type, _jsonSerializerOptions);
             return ValueTask.CompletedTask;
+        }
+
+        #endregion Public 方法
+
+        #region Private 方法
+
+        private void CheckCanWrite()
+        {
+            if (_state != 1)
+            {
+                throw new InvalidOperationException("The serializer can not write now");
+            }
+        }
+
+        private void ThrowIfDisposed()
+        {
+            if (_state == 3)
+            {
+                throw new ObjectDisposedException(GetType().Name);
+            }
+        }
+
+        #endregion Private 方法
+
+        #region IDisposable
+
+        ~SystemTextJsonMultipleObjectAsyncStreamSerializer()
+        {
+            Dispose();
+        }
+
+        public void Dispose()
+        {
+            if (_state != 3)
+            {
+                _state = 3;
+                _utf8JsonWriter.Dispose();
+                GC.SuppressFinalize(this);
+            }
+        }
+
+        #endregion IDisposable
+    }
+
+    private sealed class SystemTextJsonMultipleObjectStreamSerializer : IMultipleObjectStreamSerializer
+    {
+        #region Private 字段
+
+        private readonly JsonSerializerOptions _jsonSerializerOptions;
+
+        private readonly Utf8JsonWriter _utf8JsonWriter;
+
+        /// <summary>
+        /// 状态 0 初始化，1:开始写入，2:写入完成，3:Disposed
+        /// </summary>
+        private byte _state = 0;
+
+        #endregion Private 字段
+
+        #region Public 构造函数
+
+        public SystemTextJsonMultipleObjectStreamSerializer(Utf8JsonWriter utf8JsonWriter, JsonSerializerOptions jsonSerializerOptions)
+        {
+            _utf8JsonWriter = utf8JsonWriter ?? throw new ArgumentNullException(nameof(utf8JsonWriter));
+            _jsonSerializerOptions = jsonSerializerOptions ?? throw new ArgumentNullException(nameof(jsonSerializerOptions));
+        }
+
+        #endregion Public 构造函数
+
+        #region Public 方法
+
+        public void Finish()
+        {
+            ThrowIfDisposed();
+
+            if (_state < 1)
+            {
+                throw new InvalidOperationException($"Must invoke \"{nameof(Start)}\" first");
+            }
+            else if (_state > 1)
+            {
+                throw new InvalidOperationException("The serializer was finished");
+            }
+
+            _state = 2;
+
+            _utf8JsonWriter.WriteEndArray();
+            _utf8JsonWriter.Flush();
+        }
+
+        public void Start()
+        {
+            ThrowIfDisposed();
+
+            if (_state != 0)
+            {
+                throw new InvalidOperationException("The serializer was started");
+            }
+
+            _state = 1;
+
+            _utf8JsonWriter.WriteStartArray();
+        }
+
+        public void Write<T>(T? value)
+        {
+            CheckCanWrite();
+
+            JsonSerializer.Serialize(_utf8JsonWriter, value, _jsonSerializerOptions);
+        }
+
+        public void Write(object? value, Type type)
+        {
+            CheckCanWrite();
+
+            JsonSerializer.Serialize(_utf8JsonWriter, value, type, _jsonSerializerOptions);
         }
 
         #endregion Public 方法

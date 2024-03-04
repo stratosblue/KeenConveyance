@@ -27,7 +27,10 @@ public abstract class ObjectSerializer : IObjectSerializer
     #region Public 方法
 
     /// <inheritdoc/>
-    public abstract IMultipleObjectStreamSerializer CreateObjectStreamSerializer(Stream stream);
+    public abstract IMultipleObjectAsyncStreamSerializer CreateObjectStreamSerializer(Stream stream);
+
+    /// <inheritdoc/>
+    public abstract IMultipleObjectStreamSerializer CreateObjectStreamSerializer(IBufferWriter<byte> bufferWriter);
 
     /// <inheritdoc/>
     public virtual async ValueTask<T?> DeserializeAsync<T>(Stream stream, CancellationToken cancellationToken)

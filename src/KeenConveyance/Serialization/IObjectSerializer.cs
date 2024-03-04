@@ -74,7 +74,14 @@ public interface IObjectSerializer : ISupportedMediaType
     /// </summary>
     /// <param name="stream"></param>
     /// <returns></returns>
-    IMultipleObjectStreamSerializer CreateObjectStreamSerializer(Stream stream);
+    IMultipleObjectAsyncStreamSerializer CreateObjectStreamSerializer(Stream stream);
+
+    /// <summary>
+    /// 创建流式多对象序列化器
+    /// </summary>
+    /// <param name="bufferWriter"></param>
+    /// <returns></returns>
+    IMultipleObjectStreamSerializer CreateObjectStreamSerializer(IBufferWriter<byte> bufferWriter);
 
     /// <summary>
     /// 反序列化多个对象

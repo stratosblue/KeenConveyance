@@ -12,6 +12,9 @@ public abstract class ProxyClientBase : IDisposable
 {
     #region Protected 字段
 
+    /// <inheritdoc cref="KeenConveyanceClientOptions.BufferInitialCapacity"/>
+    protected readonly int BufferInitialCapacity;
+
     /// <summary>
     /// 客户端名称
     /// </summary>
@@ -27,6 +30,9 @@ public abstract class ProxyClientBase : IDisposable
 
     /// <inheritdoc cref="IObjectSerializer"/>
     protected readonly IObjectSerializer ObjectSerializer;
+
+    /// <inheritdoc cref="KeenConveyanceClientOptions.PrePreparePayloadData"/>
+    protected readonly bool PrePreparePayloadData;
 
     /// <inheritdoc cref="IServiceAddressProvider"/>
     protected readonly IServiceAddressProvider ServiceAddressProvider;
@@ -73,6 +79,19 @@ public abstract class ProxyClientBase : IDisposable
         HttpRequestMessageConstructor = clientOptions.HttpRequestMessageConstructor
                                         ?? globalClientOptions.HttpRequestMessageConstructor
                                         ?? throw new KeenConveyanceException($"No available http request message constructor for client -> \"{clientName}\"");
+
+        PrePreparePayloadData = clientOptions.PrePreparePayloadData
+                                ?? globalClientOptions.PrePreparePayloadData
+                                ?? KeenConveyanceClientOptions.DefaultPrePreparePayloadData;
+
+        BufferInitialCapacity = clientOptions.BufferInitialCapacity
+                                ?? globalClientOptions.BufferInitialCapacity
+                                ?? KeenConveyanceClientOptions.DefaultBufferInitialCapacity;
+
+        if (BufferInitialCapacity < 0)
+        {
+            throw new ArgumentException($"{nameof(BufferInitialCapacity)} must be greater than 0");
+        }
     }
 
     #endregion Protected 构造函数
