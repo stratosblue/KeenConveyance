@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFrameworks>netstandard2.0</TargetFrameworks>
@@ -14,7 +14,8 @@
 
 	<ItemGroup>
 	  <Compile Include="..\KeenConveyance.AspNetCore\Util\Crc32.cs" Link="Util\Crc32.cs" />
-	  <Compile Include="..\KeenConveyance.AspNetCore\Util\URIEncoder.cs" Link="Util\URIEncoder.cs" />
+    <Compile Include="..\KeenConveyance.AspNetCore\Util\URIEncoder.cs" Link="Util\URIEncoder.cs" />
+    <Compile Include="..\KeenConveyance.AspNetCore\Util\BaseAnyEncoding.cs" Link="Util\BaseAnyEncoding.cs" />
 	</ItemGroup>
 
 	<ItemGroup>
