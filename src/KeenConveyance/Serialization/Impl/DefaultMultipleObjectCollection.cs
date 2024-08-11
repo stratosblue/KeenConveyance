@@ -98,7 +98,7 @@ public sealed class DefaultMultipleObjectCollection : IMultipleObjectCollection,
 
     private void ThrowIfDisposed()
     {
-        if (_disposedValue)
+        if (_isDisposed)
         {
             throw new ObjectDisposedException(nameof(DefaultMultipleObjectCollection));
         }
@@ -108,7 +108,7 @@ public sealed class DefaultMultipleObjectCollection : IMultipleObjectCollection,
 
     #region IDisposable
 
-    private bool _disposedValue;
+    private bool _isDisposed;
 
     /// <summary>
     ///
@@ -121,9 +121,9 @@ public sealed class DefaultMultipleObjectCollection : IMultipleObjectCollection,
     /// <inheritdoc/>
     public void Dispose()
     {
-        if (!_disposedValue)
+        if (!_isDisposed)
         {
-            _disposedValue = true;
+            _isDisposed = true;
             ArrayPool<object?>.Shared.Return(_container, false);
             _container = null!;
             GC.SuppressFinalize(this);

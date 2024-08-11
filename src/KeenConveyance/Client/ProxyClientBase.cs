@@ -194,7 +194,7 @@ public abstract class ProxyClientBase : IDisposable
 
     #region Dispose
 
-    private bool _disposedValue;
+    private bool _isDisposed;
 
     /// <summary>
     ///
@@ -207,9 +207,9 @@ public abstract class ProxyClientBase : IDisposable
     /// <inheritdoc cref="Dispose()"/>
     protected virtual void Dispose(bool disposing)
     {
-        if (!_disposedValue)
+        if (!_isDisposed)
         {
-            _disposedValue = true;
+            _isDisposed = true;
             UnderlyingHttpClient.Dispose();
         }
     }

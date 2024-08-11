@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <Version>1.0.0-preview-006</Version>
+    <Version>1.0.0-preview-007</Version>
 
     <Description>A `Asp.Net Core Controller` service call RPC framework based on `interface`. 基于 `interface` 的 `Asp.Net Core Controller` 服务调用RPC框架。</Description>
 
@@ -26,7 +26,7 @@
   </PropertyGroup>
 
   <ItemGroup Condition="'$(Configuration)' == 'Release'">
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.*" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.*" PrivateAssets="All" />
   </ItemGroup>
 
   <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">

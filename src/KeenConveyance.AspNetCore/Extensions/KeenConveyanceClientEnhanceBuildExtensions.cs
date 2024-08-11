@@ -23,7 +23,7 @@ public static class KeenConveyanceClientEnhanceBuildExtensions
         where TClient : class
     {
         builder.Services.TryAddTransient<HttpContextHeaderForwardedHttpMessageHandler>();
-        builder.ConfigureHttpMessageHandlerBuilder(handlerBuilder => handlerBuilder.AdditionalHandlers.Add(handlerBuilder.Services.GetRequiredService<HttpContextHeaderForwardedHttpMessageHandler>()));
+        builder.ConfigureAdditionalHttpMessageHandlers((additionalHandlers, serviceProvider) => additionalHandlers.Add(serviceProvider.GetRequiredService<HttpContextHeaderForwardedHttpMessageHandler>()));
         return builder;
     }
 
@@ -44,7 +44,7 @@ public static class KeenConveyanceClientEnhanceBuildExtensions
         }
 
         builder.Services.TryAddTransient<FixedHttpContextHeaderForwardedHttpMessageHandler>();
-        builder.ConfigureHttpMessageHandlerBuilder(handlerBuilder => handlerBuilder.AdditionalHandlers.Add(handlerBuilder.Services.GetRequiredService<FixedHttpContextHeaderForwardedHttpMessageHandler>().SetHeaders(headers)));
+        builder.ConfigureAdditionalHttpMessageHandlers((additionalHandlers, serviceProvider) => additionalHandlers.Add(serviceProvider.GetRequiredService<FixedHttpContextHeaderForwardedHttpMessageHandler>().SetHeaders(headers)));
         return builder;
     }
 

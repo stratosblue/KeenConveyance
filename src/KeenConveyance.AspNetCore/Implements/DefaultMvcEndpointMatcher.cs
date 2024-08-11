@@ -152,7 +152,7 @@ public class DefaultMvcEndpointMatcher : IMvcEndpointMatcher, IDisposable
 
     #region Dispose
 
-    private bool _disposedValue;
+    private bool _isDisposed;
 
     /// <summary>
     ///
@@ -165,9 +165,9 @@ public class DefaultMvcEndpointMatcher : IMvcEndpointMatcher, IDisposable
     /// <inheritdoc cref="Dispose()"/>
     protected virtual void Dispose(bool disposing)
     {
-        if (!_disposedValue)
+        if (!_isDisposed)
         {
-            _disposedValue = true;
+            _isDisposed = true;
             _endpointDataSourceChangeTokenDisposer.Dispose();
         }
     }

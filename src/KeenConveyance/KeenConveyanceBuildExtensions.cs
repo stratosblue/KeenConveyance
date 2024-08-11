@@ -39,7 +39,7 @@ public static class KeenConveyanceBuildExtensions
         //先进行组配置，私有配置将覆盖组配置
         if (groupBuilder.GroupOptionsSetupAction is not null)
         {
-            builder.Services.AddOptions<KeenConveyanceClientOptions>(CachedTypeNameAccessor<TClient>.DisplayName)
+            builder.Services.AddOptions<KeenConveyanceClientOptions>(CachedTypeNameAccessor<TClient>.FullDisplayName)
                             .Configure(groupBuilder.GroupOptionsSetupAction);
         }
 
@@ -117,7 +117,7 @@ public static class KeenConveyanceBuildExtensions
     public static IKeenConveyanceHttpClientBuilder<TClient> ConfigureOptions<TClient>(this IKeenConveyanceHttpClientBuilder<TClient> builder, Action<KeenConveyanceClientOptions> configureOptions)
         where TClient : class
     {
-        builder.Services.AddOptions<KeenConveyanceClientOptions>(CachedTypeNameAccessor<TClient>.DisplayName)
+        builder.Services.AddOptions<KeenConveyanceClientOptions>(CachedTypeNameAccessor<TClient>.FullDisplayName)
                         .Configure(configureOptions);
 
         return builder;
@@ -177,7 +177,7 @@ public static class KeenConveyanceBuildExtensions
     public static IKeenConveyanceHttpClientBuilder<TClient> ConfigureServiceAddress<TClient>(this IKeenConveyanceHttpClientBuilder<TClient> builder, Type serviceAddressProviderType)
         where TClient : class
     {
-        builder.Services.AddOptions<KeenConveyanceClientOptions>(CachedTypeNameAccessor<TClient>.DisplayName)
+        builder.Services.AddOptions<KeenConveyanceClientOptions>(CachedTypeNameAccessor<TClient>.FullDisplayName)
                         .Configure<IServiceProvider>((options, serviceProvider) =>
                         {
                             options.ServiceAddressProvider = (IServiceAddressProvider)serviceProvider.GetRequiredService(serviceAddressProviderType);
@@ -216,7 +216,7 @@ public static class KeenConveyanceBuildExtensions
     public static IKeenConveyanceHttpClientBuilder<TClient> ConfigureHttpRequestMessageConstructor<TClient>(this IKeenConveyanceHttpClientBuilder<TClient> builder, Type httpRequestMessageConstructorType)
         where TClient : class
     {
-        builder.Services.AddOptions<KeenConveyanceClientOptions>(CachedTypeNameAccessor<TClient>.DisplayName)
+        builder.Services.AddOptions<KeenConveyanceClientOptions>(CachedTypeNameAccessor<TClient>.FullDisplayName)
                         .Configure<IServiceProvider>((options, serviceProvider) =>
                         {
                             options.HttpRequestMessageConstructor = (IHttpRequestMessageConstructor)serviceProvider.GetRequiredService(httpRequestMessageConstructorType);

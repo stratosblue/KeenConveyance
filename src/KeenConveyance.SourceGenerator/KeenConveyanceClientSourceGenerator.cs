@@ -124,7 +124,11 @@ public class KeenConveyanceClientSourceGenerator : IIncrementalGenerator
                                         .OfType<IMethodSymbol>()
                                         .Select(method =>
                                         {
-                                            var parameters = method.Parameters.Select(m => new ParameterGenerateInfo(m, m.Type.ToFullyQualifiedString(), m.Name, typeJsonKindAnalyzer.GetJsonKind(m.Type), typeJsonKindAnalyzer.CreateTypeGenerateInfo(m.Type)))
+                                            var parameters = method.Parameters.Select(m => new ParameterGenerateInfo(ParameterSymbol: m,
+                                                                                                                     TypeName: m.Type.ToFullyQualifiedString(),
+                                                                                                                     Name: m.Name,
+                                                                                                                     TypeJsonKind: typeJsonKindAnalyzer.GetJsonKind(m.Type),
+                                                                                                                     GenerateInfo: typeJsonKindAnalyzer.CreateTypeGenerateInfo(m.Type)))
                                                                               .ToArray();
 
                                             //TODO 为出现多个 CancellationToken 的情况报告错误
@@ -137,11 +141,20 @@ public class KeenConveyanceClientSourceGenerator : IIncrementalGenerator
 
                                             var methodAliasAttributeData = method.GetAttributes().FirstOrDefault(m => SymbolEqualityComparer.Default.Equals(aliasAttributeTypeSymbol, m.AttributeClass));
 
-                                            return new MethodGenerateInfo(method, method.Name, methodAliasAttributeData?.ConstructorArguments[0].Value?.ToString() ?? method.Name, typeJsonKindAnalyzer.CreateTypeGenerateInfo(method.ReturnType), parameters, cancellationParameterInfo);
+                                            return new MethodGenerateInfo(MethodSymbol: method,
+                                                                          Name: method.Name,
+                                                                          Alias: methodAliasAttributeData?.ConstructorArguments[0].Value?.ToString() ?? method.Name,
+                                                                          ReturnType: typeJsonKindAnalyzer.CreateTypeGenerateInfo(method.ReturnType),
+                                                                          Parameters: parameters,
+                                                                          CancellationToken: cancellationParameterInfo);
                                         })
                                         .ToArray();
 
-            return new ServiceGenerateInfo(typeSymbol, typeSymbol.Name, typeAliasAttributeData?.ConstructorArguments[0].Value?.ToString() ?? typeSymbol.ToDisplayString(FullyQualifiedFormatWithOutGlobal), typeSymbol.ToFullyQualifiedString(), methodInfos);
+            return new ServiceGenerateInfo(ServiceType: typeSymbol,
+                                           Name: typeSymbol.Name,
+                                           Alias: typeAliasAttributeData?.ConstructorArguments[0].Value?.ToString() ?? typeSymbol.ToDisplayString(FullyQualifiedFormatWithOutGlobal),
+                                           FullName: typeSymbol.ToFullyQualifiedString(),
+                                           Methods: methodInfos);
         }
         return null;
     }
