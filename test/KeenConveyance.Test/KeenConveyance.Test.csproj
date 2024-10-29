@@ -6,12 +6,12 @@
   <ItemGroup>
     <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <ProjectReference Include="..\KeenConveyance.TestWebAPI\KeenConveyance.TestWebAPI.csproj" />
 
     <ProjectReference Include="..\..\src\KeenConveyance\KeenConveyance.csproj" />
-		<ProjectReference Include="..\..\src\KeenConveyance.SourceGenerator\KeenConveyance.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-	</ItemGroup>
+    <ProjectReference Include="..\..\src\KeenConveyance.SourceGenerator\KeenConveyance.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+  </ItemGroup>
 
 </Project>
