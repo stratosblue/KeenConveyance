@@ -2,6 +2,6 @@
 
 namespace KeenConveyance.SourceGenerator;
 
-record struct ServiceGenerateInfo(ITypeSymbol ServiceType, string Name, string Alias, string FullName, ComparableArray<MethodGenerateInfo> Methods);
+internal record struct ServiceGenerateInfo(ITypeSymbol ServiceType, string Name, string Alias, string FullName, ComparableArray<MethodGenerateInfo> Methods, ITypeSymbol? ClientBaseType);
 
-record struct TypeGenerateInfo(ITypeSymbol Type, ValueTypeKind TypeKind, ITypeSymbol ValueType);
+internal record struct TypeGenerateInfo(ITypeSymbol Type, ValueTypeKind TypeKind, ITypeSymbol ValueType);

@@ -93,7 +93,7 @@ $$"""
             builder.AppendLine(
 $$"""
 
-    private abstract partial class {{generateInfo.Name}}ProxyClientBase : ProxyClientBase, {{generateInfo.FullName}}
+    private abstract partial class {{generateInfo.Name}}ProxyClientBase : {{(generateInfo.ClientBaseType is null ? "ProxyClientBase" : generateInfo.ClientBaseType.ToFullyQualifiedString())}}, {{generateInfo.FullName}}
     {
         public {{generateInfo.Name}}ProxyClientBase(HttpClient httpClient, IOptionsSnapshot<KeenConveyanceClientOptions> clientOptionsSnapshot)
             : base(CachedTypeNameAccessor<{{generateInfo.FullName}}>.FullDisplayName, httpClient, clientOptionsSnapshot, GeneratedMethodDescriptors)

@@ -39,9 +39,31 @@ public class KeenConveyanceClientSourceGenerator : IIncrementalGenerator
                                                              : "KeenConveyance";
 
                                          var allAddedClientGenerateInfo = input.Left;
-                                         var clientGenerateInfos = allAddedClientGenerateInfo.Distinct()
-                                                                                             .OfType<ServiceGenerateInfo>()
-                                                                                             .ToImmutableArray();
+                                         var clientGenerateInfoServiceTypeGroup = allAddedClientGenerateInfo.OfType<ServiceGenerateInfoWithInvocationExpressionSyntax>()
+                                                                                                            .GroupBy(m => m.ServiceGenerateInfo.ServiceType);
+
+                                         List<ServiceGenerateInfo> validClientGenerateInfo = [];
+
+                                         foreach (var group in clientGenerateInfoServiceTypeGroup)
+                                         {
+                                             //检测是否多次设置不同的配置
+                                             var count = group.Select(m => m.ServiceGenerateInfo).Distinct().Count();
+                                             if (count == 1)
+                                             {
+                                                 validClientGenerateInfo.Add(group.First().ServiceGenerateInfo);
+                                             }
+                                             else if (count > 1)
+                                             {
+                                                 foreach (var item in group)
+                                                 {
+                                                     var diagnosticDescriptor = new DiagnosticDescriptor(id: "KC002", title: "Generator", messageFormat: "不能为类型 {0} 生成 KeenConveyance 客户端，因为对其进行了多次不相容的客户端配置。", category: "KeenConveyanceClientGenerator", defaultSeverity: DiagnosticSeverity.Error, isEnabledByDefault: true);
+                                                     context.ReportDiagnostic(Diagnostic.Create(descriptor: diagnosticDescriptor, location: item.InvocationExpressionSyntax.GetLocation(), messageArgs: new[] { item.ServiceGenerateInfo.ServiceType }));
+                                                 }
+
+                                             }
+                                         }
+
+                                         var clientGenerateInfos = validClientGenerateInfo.ToImmutableArray();
                                          if (clientGenerateInfos.Length == 0)
                                          {
                                              return;
@@ -89,7 +111,7 @@ public class KeenConveyanceClientSourceGenerator : IIncrementalGenerator
         if (generatorSyntaxContext.SemanticModel.GetSymbolInfo(invocationExpressionSyntax) is SymbolInfo methodSymbolInfo
             && methodSymbolInfo.Symbol is IMethodSymbol methodSymbol
             && methodSymbol.IsExtensionMethod
-            && methodSymbol.TypeArguments.Length == 1
+            && (methodSymbol.TypeArguments.Length == 1 || methodSymbol.TypeArguments.Length == 2)
             && string.Compare("KeenConveyance", methodSymbol.ContainingNamespace.Name) == 0
             && methodSymbol.TypeArguments[0] is ITypeSymbol typeSymbol
             && typeSymbol.TypeKind != TypeKind.Interface)
@@ -99,14 +121,14 @@ public class KeenConveyanceClientSourceGenerator : IIncrementalGenerator
         return default;
     }
 
-    private ServiceGenerateInfo? TransformValidClientSyntaxNode(GeneratorSyntaxContext generatorSyntaxContext, CancellationToken cancellationToken)
+    private ServiceGenerateInfoWithInvocationExpressionSyntax? TransformValidClientSyntaxNode(GeneratorSyntaxContext generatorSyntaxContext, CancellationToken cancellationToken)
     {
         var invocationExpressionSyntax = (InvocationExpressionSyntax)generatorSyntaxContext.Node;
 
         if (generatorSyntaxContext.SemanticModel.GetSymbolInfo(invocationExpressionSyntax) is SymbolInfo methodSymbolInfo
             && methodSymbolInfo.Symbol is IMethodSymbol methodSymbol
             && methodSymbol.IsExtensionMethod
-            && methodSymbol.TypeArguments.Length == 1
+            && (methodSymbol.TypeArguments.Length == 1 || methodSymbol.TypeArguments.Length == 2)
             && string.Compare("KeenConveyance", methodSymbol.ContainingNamespace.Name) == 0
             && methodSymbol.TypeArguments[0] is ITypeSymbol typeSymbol
             && typeSymbol.TypeKind == TypeKind.Interface)
@@ -150,11 +172,14 @@ public class KeenConveyanceClientSourceGenerator : IIncrementalGenerator
                                         })
                                         .ToArray();
 
-            return new ServiceGenerateInfo(ServiceType: typeSymbol,
-                                           Name: typeSymbol.Name,
-                                           Alias: typeAliasAttributeData?.ConstructorArguments[0].Value?.ToString() ?? typeSymbol.ToDisplayString(FullyQualifiedFormatWithOutGlobal),
-                                           FullName: typeSymbol.ToFullyQualifiedString(),
-                                           Methods: methodInfos);
+            var serviceGenerateInfo = new ServiceGenerateInfo(ServiceType: typeSymbol,
+                                                              Name: typeSymbol.Name,
+                                                              Alias: typeAliasAttributeData?.ConstructorArguments[0].Value?.ToString() ?? typeSymbol.ToDisplayString(FullyQualifiedFormatWithOutGlobal),
+                                                              FullName: typeSymbol.ToFullyQualifiedString(),
+                                                              Methods: methodInfos,
+                                                              ClientBaseType: methodSymbol.TypeArguments.Length == 2 ? methodSymbol.TypeArguments[1] : null);
+
+            return new(serviceGenerateInfo, invocationExpressionSyntax);
         }
         return null;
     }
@@ -163,3 +188,5 @@ public class KeenConveyanceClientSourceGenerator : IIncrementalGenerator
 
     #endregion Private 方法
 }
+
+internal record struct ServiceGenerateInfoWithInvocationExpressionSyntax(ServiceGenerateInfo ServiceGenerateInfo, InvocationExpressionSyntax InvocationExpressionSyntax);

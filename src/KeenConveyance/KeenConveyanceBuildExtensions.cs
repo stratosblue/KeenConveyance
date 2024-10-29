@@ -51,6 +51,22 @@ public static class KeenConveyanceBuildExtensions
     }
 
     /// <summary>
+    /// 添加客户端
+    /// </summary>
+    /// <typeparam name="TClient"></typeparam>
+    /// <typeparam name="TClientBase">客户端基类</typeparam>
+    /// <param name="builder"></param>
+    /// <param name="httpClientSetupAction">客户端配置委托</param>
+    /// <returns></returns>
+    public static IKeenConveyanceClientBuilderGroupBuilder AddClient<TClient, TClientBase>(this IKeenConveyanceClientBuilderGroupBuilder builder,
+                                                                                           Action<IKeenConveyanceHttpClientBuilder<TClient>>? httpClientSetupAction = null)
+        where TClient : class
+        where TClientBase : ProxyClientBase
+    {
+        return builder.AddClient<TClient>(httpClientSetupAction);
+    }
+
+    /// <summary>
     /// 添加 KeenConveyance
     /// </summary>
     /// <param name="services"></param>
