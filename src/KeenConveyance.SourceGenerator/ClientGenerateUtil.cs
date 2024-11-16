@@ -223,7 +223,7 @@ $$"""
 
                     builder.AppendLine(
 $$"""
-            public InternalRequestHttpContent_{{i}}({{parameterString}}, IObjectSerializer objectSerializer)
+            public InternalRequestHttpContent_{{i}}({{parameterString}}, KeenConveyance.Serialization.IObjectSerializer objectSerializer)
                 : base(objectSerializer, {{cancellationTokenParameter?.Name ?? "default"}})
             {
 """);
