@@ -114,7 +114,7 @@ public static class KeenConveyanceBuildExtensions
         ArgumentNullException.ThrowIfNull(builder);
         ArgumentNullException.ThrowIfNull(setupAction);
 
-        builder.Services.TryAddEnumerable(ServiceDescriptor.Transient<IConfigureOptions<KeenConveyanceClientOptions>, KeenConveyanceClientOptionsSetup>());
+        builder.Services.Add(ServiceDescriptor.Transient<IConfigureOptions<KeenConveyanceClientOptions>, KeenConveyanceClientOptionsSetup>());
 
         setupAction(new KeenConveyanceClientBuilder(builder.Services, new KeenConveyanceClientBuilderContext()));
 
