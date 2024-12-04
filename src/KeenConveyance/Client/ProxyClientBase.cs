@@ -37,6 +37,9 @@ public abstract class ProxyClientBase : IDisposable
     /// <inheritdoc cref="IServiceAddressProvider"/>
     protected readonly IServiceAddressProvider ServiceAddressProvider;
 
+    /// <inheritdoc cref="IServiceProvider"/>
+    protected readonly IServiceProvider ServiceProvider;
+
     /// <summary>
     /// 底层使用的 <see cref="HttpClient"/>
     /// </summary>
@@ -50,7 +53,8 @@ public abstract class ProxyClientBase : IDisposable
     protected ProxyClientBase(string clientName,
                               HttpClient httpClient,
                               IOptionsSnapshot<KeenConveyanceClientOptions> clientOptionsSnapshot,
-                              MethodDescriptorCollection methodDescriptors)
+                              MethodDescriptorCollection methodDescriptors,
+                              IServiceProvider serviceProvider)
     {
         if (string.IsNullOrWhiteSpace(clientName))
         {
@@ -63,6 +67,9 @@ public abstract class ProxyClientBase : IDisposable
 
         UnderlyingHttpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         MethodDescriptors = methodDescriptors ?? throw new ArgumentNullException(nameof(methodDescriptors));
+
+        //便于客户端基类从DI获取更多服务，在此添加ServiceProvider，也可避免后续构造签名变更导致的运行错误
+        ServiceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
 
         var globalClientOptions = clientOptionsSnapshot.Get(Options.DefaultName);
 
@@ -184,7 +191,7 @@ public abstract class ProxyClientBase : IDisposable
     /// <param name="httpRequestMessage"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    protected virtual Task<HttpResponseMessage> SendHttpRequestMessageAsync(string entryKey, HttpRequestMessage httpRequestMessage, in CancellationToken cancellationToken)
+    protected virtual Task<HttpResponseMessage> SendHttpRequestMessageAsync(string entryKey, HttpRequestMessage httpRequestMessage, CancellationToken cancellationToken)
     {
         httpRequestMessage.Headers.TryAddWithoutValidation("Accept", ObjectSerializer.SupportedMediaType);
         return UnderlyingHttpClient.SendAsync(httpRequestMessage, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
@@ -204,6 +211,13 @@ public abstract class ProxyClientBase : IDisposable
         Dispose(disposing: false);
     }
 
+    /// <inheritdoc/>
+    public void Dispose()
+    {
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
+
     /// <inheritdoc cref="Dispose()"/>
     protected virtual void Dispose(bool disposing)
     {
@@ -212,13 +226,6 @@ public abstract class ProxyClientBase : IDisposable
             _isDisposed = true;
             UnderlyingHttpClient.Dispose();
         }
-    }
-
-    /// <inheritdoc/>
-    public void Dispose()
-    {
-        Dispose(disposing: true);
-        GC.SuppressFinalize(this);
     }
 
     #endregion Dispose

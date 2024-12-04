@@ -79,8 +79,8 @@ internal static partial class GeneratedClient
 $$"""
     private sealed partial class {{generateInfo.Name}}ProxyClient : {{generateInfo.Name}}ProxyClientBase
     {
-        public {{generateInfo.Name}}ProxyClient(HttpClient httpClient, IOptionsSnapshot<KeenConveyanceClientOptions> clientOptionsSnapshot)
-            : base(httpClient, clientOptionsSnapshot)
+        public {{generateInfo.Name}}ProxyClient(HttpClient httpClient, IOptionsSnapshot<KeenConveyanceClientOptions> clientOptionsSnapshot, IServiceProvider serviceProvider)
+            : base(httpClient, clientOptionsSnapshot, serviceProvider)
         {
         }
     }
@@ -95,8 +95,8 @@ $$"""
 
     private abstract partial class {{generateInfo.Name}}ProxyClientBase : {{(generateInfo.ClientBaseType is null ? "ProxyClientBase" : generateInfo.ClientBaseType.ToFullyQualifiedString())}}, {{generateInfo.FullName}}
     {
-        public {{generateInfo.Name}}ProxyClientBase(HttpClient httpClient, IOptionsSnapshot<KeenConveyanceClientOptions> clientOptionsSnapshot)
-            : base(CachedTypeNameAccessor<{{generateInfo.FullName}}>.FullDisplayName, httpClient, clientOptionsSnapshot, GeneratedMethodDescriptors)
+        public {{generateInfo.Name}}ProxyClientBase(HttpClient httpClient, IOptionsSnapshot<KeenConveyanceClientOptions> clientOptionsSnapshot, IServiceProvider serviceProvider)
+            : base(CachedTypeNameAccessor<{{generateInfo.FullName}}>.FullDisplayName, httpClient, clientOptionsSnapshot, GeneratedMethodDescriptors, serviceProvider)
         {
         }
 """);
