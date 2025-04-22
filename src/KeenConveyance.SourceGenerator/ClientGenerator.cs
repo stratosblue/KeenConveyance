@@ -1,8 +1,11 @@
-﻿using System.Collections.Immutable;
+﻿#pragma warning disable IDE0130
+
+using System.Collections.Immutable;
+using KeenConveyance.SourceGenerator;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace KeenConveyance.SourceGenerator;
+namespace KeenConveyance;
 
 [Generator(LanguageNames.CSharp)]
 public class ClientGenerator : IIncrementalGenerator
@@ -67,9 +70,10 @@ public class ClientGenerator : IIncrementalGenerator
                                          {
                                              return;
                                          }
-                                         var code = ClientGenerateUtil.GenerateClientCode(clientGenerateInfos, rootNamespace);
-
-                                         context.AddSource("GeneratedClient.g.cs", code);
+                                         foreach (var (hintName, code) in ClientGenerateUtil.GenerateClientCode(clientGenerateInfos, rootNamespace))
+                                         {
+                                             context.AddSource(hintName, code);
+                                         }
                                      });
 
         var invalidClientAddExpressionProvider = context.SyntaxProvider.CreateSyntaxProvider(FilterAddClientInvocationSyntaxNode, TransformInvalidClientSyntaxNode)

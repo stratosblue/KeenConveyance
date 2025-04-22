@@ -23,7 +23,7 @@ A `Asp.Net Core Controller` service call RPC framework based on `interface`. 基
  - 新建 `Asp.Net Core Web API` 项目, 并引用包:
 ```xml
 <ItemGroup>
-  <PackageReference Include="KeenConveyance.AspNetCore" Version="1.0.0-*" />
+  <PackageReference Include="KeenConveyance.AspNetCore" Version="1.0.0" />
 </ItemGroup>
 ```
 
@@ -74,7 +74,7 @@ public class SampleService : ISampleService
  - 新建任意类型项目 (需要 `DI` 支持, 可能需要手动引入), 并引用包:
 ```xml
 <ItemGroup>
-  <PackageReference Include="KeenConveyance" Version="1.0.0-*" />
+  <PackageReference Include="KeenConveyance" Version="1.0.0" />
 </ItemGroup>
 ```
  Note: 项目直接引用而不要间接引用!
