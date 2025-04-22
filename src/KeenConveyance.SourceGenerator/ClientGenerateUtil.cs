@@ -238,12 +238,27 @@ $$"""
             }
 
             /// <inheritdoc/>
-            protected override async Task WriteContentAsync(IMultipleObjectAsyncStreamSerializer serializer)
+            protected override async Task WriteContentAsync(IMultipleObjectAsyncStreamSerializer serializer, CancellationToken cancellationToken)
             {
 """);
                     foreach (var parameter in noCancellationTokenParameters)
                     {
-                        builder.AppendLine($"                await serializer.WriteAsync(_{parameter.Name}, CancellationToken).ConfigureAwait(false);");
+                        builder.AppendLine($"                await serializer.WriteAsync(_{parameter.Name}, cancellationToken).ConfigureAwait(false);");
+                    }
+
+
+                    builder.AppendLine(
+"""
+            }
+
+            /// <inheritdoc/>
+            protected override void WriteContent(IMultipleObjectStreamSerializer serializer, CancellationToken cancellationToken)
+            {
+""");
+                    foreach (var parameter in noCancellationTokenParameters)
+                    {
+                        builder.AppendLine($"                cancellationToken.ThrowIfCancellationRequested();");
+                        builder.AppendLine($"                serializer.Write(_{parameter.Name});");
                     }
 
                     builder.AppendLine(

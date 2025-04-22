@@ -5,7 +5,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace KeenConveyance.SourceGenerator;
 
 [Generator(LanguageNames.CSharp)]
-public class KeenConveyanceClientSourceGenerator : IIncrementalGenerator
+public class ClientGenerator : IIncrementalGenerator
 {
     #region Public 属性
 
@@ -59,7 +59,6 @@ public class KeenConveyanceClientSourceGenerator : IIncrementalGenerator
                                                      var diagnosticDescriptor = new DiagnosticDescriptor(id: "KC002", title: "Generator", messageFormat: "不能为类型 {0} 生成 KeenConveyance 客户端，因为对其进行了多次不相容的客户端配置。", category: "KeenConveyanceClientGenerator", defaultSeverity: DiagnosticSeverity.Error, isEnabledByDefault: true);
                                                      context.ReportDiagnostic(Diagnostic.Create(descriptor: diagnosticDescriptor, location: item.InvocationExpressionSyntax.GetLocation(), messageArgs: new[] { item.ServiceGenerateInfo.ServiceType }));
                                                  }
-
                                              }
                                          }
 

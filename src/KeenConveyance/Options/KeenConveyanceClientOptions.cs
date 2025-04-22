@@ -26,7 +26,7 @@ public class KeenConveyanceClientOptions
 
     /// <summary>
     /// 使用 <see cref="PrePreparePayloadData"/> 时，buffer 的初始化大小<br/>
-    /// 默认值为 <see cref="DefaultPrePreparePayloadData"/>
+    /// 默认值为 <see cref="DefaultBufferInitialCapacity"/>
     /// </summary>
     public int? BufferInitialCapacity { get; set; }
 
