@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.ComponentModel;
+using System.Net;
 using System.Text;
 using KeenConveyance.Internal;
 using KeenConveyance.Serialization;
@@ -111,7 +112,11 @@ public abstract class MultipleObjectHttpContent : KeenConveyanceHttpContentBase
     /// <param name="serializer"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    protected abstract void WriteContent(IMultipleObjectStreamSerializer serializer, CancellationToken cancellationToken);
+    protected virtual void WriteContent(IMultipleObjectStreamSerializer serializer, CancellationToken cancellationToken)
+    {
+        //短期的二进制兼容，后续调整为 abstract 方法
+        throw new NotImplementedException("The client should use the same version package and regenerate code.");
+    }
 
     /// <summary>
     /// 将 数据 写入 <paramref name="serializer"/>
@@ -119,7 +124,25 @@ public abstract class MultipleObjectHttpContent : KeenConveyanceHttpContentBase
     /// <param name="serializer"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    protected abstract Task WriteContentAsync(IMultipleObjectAsyncStreamSerializer serializer, CancellationToken cancellationToken);
+    protected virtual Task WriteContentAsync(IMultipleObjectAsyncStreamSerializer serializer, CancellationToken cancellationToken)
+    {
+        //旧版本生成代码拥有 WriteContentAsync(IMultipleObjectAsyncStreamSerializer) 方法，在此重定向到旧版本，以实现二进制兼容
+        //新版本生成代码必然重写此代码，未重写时产生递归调用
+        //短期的二进制兼容，后续调整为 abstract 方法
+#pragma warning disable CS0618 // 类型或成员已过时
+        return WriteContentAsync(serializer);
+#pragma warning restore CS0618 // 类型或成员已过时
+    }
+
+    /// <inheritdoc cref="WriteContentAsync(IMultipleObjectAsyncStreamSerializer, CancellationToken)"/>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    [Obsolete("use \"WriteContentAsync(IMultipleObjectAsyncStreamSerializer, CancellationToken)\" instead")]
+    protected virtual Task WriteContentAsync(IMultipleObjectAsyncStreamSerializer serializer)
+    {
+        //旧版本生成代码会重写此方法，不会有递归调用
+        //此方法为短期的二进制兼容，后续移除
+        return WriteContentAsync(serializer, CancellationToken);
+    }
 
     #endregion Protected 方法
 }
