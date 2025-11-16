@@ -1,4 +1,6 @@
-﻿using System.Buffers;
+﻿#pragma warning disable IDE0130 // 命名空间与文件夹结构不匹配
+
+using System.Buffers;
 using System.Text.Json;
 
 namespace KeenConveyance.Serialization;
@@ -127,13 +129,15 @@ public sealed class SystemTextJsonObjectSerializer : ObjectSerializer
 
     #region Private 类
 
-    private sealed class SystemTextJsonMultipleObjectAsyncStreamSerializer : IMultipleObjectAsyncStreamSerializer
+    private sealed class SystemTextJsonMultipleObjectAsyncStreamSerializer(Utf8JsonWriter utf8JsonWriter,
+                                                                           JsonSerializerOptions jsonSerializerOptions)
+        : IMultipleObjectAsyncStreamSerializer
     {
         #region Private 字段
 
-        private readonly JsonSerializerOptions _jsonSerializerOptions;
+        private readonly JsonSerializerOptions _jsonSerializerOptions = jsonSerializerOptions ?? throw new ArgumentNullException(nameof(jsonSerializerOptions));
 
-        private readonly Utf8JsonWriter _utf8JsonWriter;
+        private readonly Utf8JsonWriter _utf8JsonWriter = utf8JsonWriter ?? throw new ArgumentNullException(nameof(utf8JsonWriter));
 
         /// <summary>
         /// 状态 0 初始化，1:开始写入，2:写入完成，3:Disposed
@@ -141,16 +145,6 @@ public sealed class SystemTextJsonObjectSerializer : ObjectSerializer
         private byte _state = 0;
 
         #endregion Private 字段
-
-        #region Public 构造函数
-
-        public SystemTextJsonMultipleObjectAsyncStreamSerializer(Utf8JsonWriter utf8JsonWriter, JsonSerializerOptions jsonSerializerOptions)
-        {
-            _utf8JsonWriter = utf8JsonWriter ?? throw new ArgumentNullException(nameof(utf8JsonWriter));
-            _jsonSerializerOptions = jsonSerializerOptions ?? throw new ArgumentNullException(nameof(jsonSerializerOptions));
-        }
-
-        #endregion Public 构造函数
 
         #region Public 方法
 
@@ -218,10 +212,7 @@ public sealed class SystemTextJsonObjectSerializer : ObjectSerializer
 
         private void ThrowIfDisposed()
         {
-            if (_state == 3)
-            {
-                throw new ObjectDisposedException(GetType().Name);
-            }
+            ObjectDisposedException.ThrowIf(_state == 3, this);
         }
 
         #endregion Private 方法
@@ -246,13 +237,15 @@ public sealed class SystemTextJsonObjectSerializer : ObjectSerializer
         #endregion IDisposable
     }
 
-    private sealed class SystemTextJsonMultipleObjectStreamSerializer : IMultipleObjectStreamSerializer
+    private sealed class SystemTextJsonMultipleObjectStreamSerializer(Utf8JsonWriter utf8JsonWriter,
+                                                                      JsonSerializerOptions jsonSerializerOptions)
+        : IMultipleObjectStreamSerializer
     {
         #region Private 字段
 
-        private readonly JsonSerializerOptions _jsonSerializerOptions;
+        private readonly JsonSerializerOptions _jsonSerializerOptions = jsonSerializerOptions ?? throw new ArgumentNullException(nameof(jsonSerializerOptions));
 
-        private readonly Utf8JsonWriter _utf8JsonWriter;
+        private readonly Utf8JsonWriter _utf8JsonWriter = utf8JsonWriter ?? throw new ArgumentNullException(nameof(utf8JsonWriter));
 
         /// <summary>
         /// 状态 0 初始化，1:开始写入，2:写入完成，3:Disposed
@@ -260,16 +253,6 @@ public sealed class SystemTextJsonObjectSerializer : ObjectSerializer
         private byte _state = 0;
 
         #endregion Private 字段
-
-        #region Public 构造函数
-
-        public SystemTextJsonMultipleObjectStreamSerializer(Utf8JsonWriter utf8JsonWriter, JsonSerializerOptions jsonSerializerOptions)
-        {
-            _utf8JsonWriter = utf8JsonWriter ?? throw new ArgumentNullException(nameof(utf8JsonWriter));
-            _jsonSerializerOptions = jsonSerializerOptions ?? throw new ArgumentNullException(nameof(jsonSerializerOptions));
-        }
-
-        #endregion Public 构造函数
 
         #region Public 方法
 
@@ -334,10 +317,7 @@ public sealed class SystemTextJsonObjectSerializer : ObjectSerializer
 
         private void ThrowIfDisposed()
         {
-            if (_state == 3)
-            {
-                throw new ObjectDisposedException(GetType().Name);
-            }
+            ObjectDisposedException.ThrowIf(_state == 3, this);
         }
 
         #endregion Private 方法

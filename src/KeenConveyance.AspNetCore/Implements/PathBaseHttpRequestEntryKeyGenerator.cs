@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿#pragma warning disable IDE0130 // 命名空间与文件夹结构不匹配
+
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 
 namespace KeenConveyance.AspNetCore;

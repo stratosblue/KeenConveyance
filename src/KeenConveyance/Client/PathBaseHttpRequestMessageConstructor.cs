@@ -10,7 +10,7 @@ public sealed class PathBaseHttpRequestMessageConstructor : IHttpRequestMessageC
 {
     #region Private 字段
 
-    private static readonly ConditionalWeakTable<Uri, ConcurrentDictionary<string, Uri>> s_uriCache = new();
+    private static readonly ConditionalWeakTable<Uri, ConcurrentDictionary<string, Uri>> s_uriCache = [];
 
     private readonly string _serviceEntryPath;
 

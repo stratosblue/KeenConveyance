@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿#pragma warning disable IDE0130 // 命名空间与文件夹结构不匹配
+
+using System.ComponentModel.DataAnnotations;
 using KeenConveyance.Serialization;
 
 namespace KeenConveyance.Client;

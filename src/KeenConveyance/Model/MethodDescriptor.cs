@@ -1,4 +1,6 @@
-﻿using System.Collections.Immutable;
+﻿#pragma warning disable IDE0130 // 命名空间与文件夹结构不匹配
+
+using System.Collections.Immutable;
 
 namespace KeenConveyance;
 
@@ -19,7 +21,7 @@ public readonly struct MethodDescriptor(string entryKey, IEnumerable<ParameterDe
     /// <summary>
     /// 方法参数列表
     /// </summary>
-    public ImmutableArray<ParameterDescriptor> Parameters { get; } = parameters.ToImmutableArray();
+    public ImmutableArray<ParameterDescriptor> Parameters { get; } = [.. parameters];
 
     #endregion Public 属性
 }

@@ -7,27 +7,15 @@ namespace KeenConveyance.AspNetCore.Mvc.ModelBinding;
 /// <summary>
 /// KeenConveyance 使用的 <inheritdoc cref="IModelBinderProvider"/>
 /// </summary>
-public class KeenConveyanceModelBinderProvider : IModelBinderProvider
+/// <param name="modelBinderProviders">原始的 Mvc 配置的 <see cref="IModelBinderProvider"/> 集合</param>
+public class KeenConveyanceModelBinderProvider(IList<IModelBinderProvider> modelBinderProviders)
+    : IModelBinderProvider
 {
     #region Private 字段
 
-    private readonly IList<IModelBinderProvider> _providers;
+    private readonly IList<IModelBinderProvider> _providers = modelBinderProviders ?? throw new ArgumentNullException(nameof(modelBinderProviders));
 
     #endregion Private 字段
-
-    #region Public 构造函数
-
-    /// <summary>
-    /// <inheritdoc cref="KeenConveyanceModelBinderProvider"/>
-    /// </summary>
-    /// <param name="modelBinderProviders">原始的 Mvc 配置的 <see cref="IModelBinderProvider"/> 集合</param>
-    /// <exception cref="ArgumentNullException"></exception>
-    public KeenConveyanceModelBinderProvider(IList<IModelBinderProvider> modelBinderProviders)
-    {
-        _providers = modelBinderProviders ?? throw new ArgumentNullException(nameof(modelBinderProviders));
-    }
-
-    #endregion Public 构造函数
 
     #region Public 方法
 

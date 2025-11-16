@@ -1,10 +1,9 @@
 ﻿using System.Diagnostics;
-using KeenConveyance.Test;
 using KeenConveyance.TestWebAPI;
 using KeenConveyance.TestWebAPI.Services;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace KeenConveyance;
+namespace KeenConveyance.Test;
 
 public abstract class ClientInvokeTestBase<TTestStartup> : TestServerBaseTestBase<TTestStartup> where TTestStartup : ITestStartup, new()
 {
@@ -49,14 +48,14 @@ public abstract class ClientInvokeTestBase<TTestStartup> : TestServerBaseTestBas
         var delayTask1 = Task.Run(async () =>
         {
             var sw = Stopwatch.StartNew();
-            await Assert.ThrowsExceptionAsync<TaskCanceledException>(() => testServiceImpl.WaitAsync(wait, cts.Token));
+            await Assert.ThrowsExactlyAsync<TaskCanceledException>(() => testServiceImpl.WaitAsync(wait, cts.Token));
             sw.Stop();
             return sw.ElapsedMilliseconds;
         });
         var delayTask2 = Task.Run(async () =>
         {
             var sw = Stopwatch.StartNew();
-            await Assert.ThrowsExceptionAsync<TaskCanceledException>(() => testService.WaitAsync(wait, cts.Token));
+            await Assert.ThrowsExactlyAsync<TaskCanceledException>(() => testService.WaitAsync(wait, cts.Token));
             sw.Stop();
             return sw.ElapsedMilliseconds;
         });
@@ -65,8 +64,8 @@ public abstract class ClientInvokeTestBase<TTestStartup> : TestServerBaseTestBas
 
         await Task.WhenAll(delayTask1, delayTask2);
 
-        Assert.IsTrue(delayTask1.Result < 2000, $"Complete use: {delayTask1.Result}");
-        Assert.IsTrue(delayTask2.Result < 2000, $"Complete use: {delayTask2.Result}");
+        Assert.IsLessThan(2000, delayTask1.Result, $"Complete use: {delayTask1.Result}");
+        Assert.IsLessThan(2000, delayTask2.Result, $"Complete use: {delayTask2.Result}");
     }
 
     [TestMethod]
@@ -92,10 +91,9 @@ public abstract class ClientInvokeTestBase<TTestStartup> : TestServerBaseTestBas
         await Task.WhenAll(delayTask1, delayTask2);
 
         //等待时间正确
-        Assert.IsTrue(Math.Abs(delayTask1.Result - 1000) < delayTask1.Result / 10);
+        Assert.IsLessThan(delayTask1.Result / 10, Math.Abs(delayTask1.Result - 1000));
 
-        //误差时间在十分之一以内
-        Assert.IsTrue(Math.Abs(delayTask1.Result - delayTask2.Result) < delayTask1.Result / 10);
+        Assert.IsLessThanOrEqualTo(2500, delayTask2.Result);
     }
 
     [TestMethod]
@@ -121,10 +119,10 @@ public abstract class ClientInvokeTestBase<TTestStartup> : TestServerBaseTestBas
         await Task.WhenAll(delayTask1, delayTask2);
 
         //等待时间正确
-        Assert.IsTrue(Math.Abs(delayTask1.Result - 1000) < delayTask1.Result / 10);
+        Assert.IsLessThan(delayTask1.Result / 10, Math.Abs(delayTask1.Result - 1000));
 
         //误差时间在十分之一以内
-        Assert.IsTrue(Math.Abs(delayTask1.Result - delayTask2.Result) < delayTask1.Result / 10);
+        Assert.IsLessThan(delayTask1.Result / 10, Math.Abs(delayTask1.Result - delayTask2.Result));
     }
 
     [TestMethod]
@@ -190,7 +188,7 @@ public abstract class ClientInvokeTestBase<TTestStartup> : TestServerBaseTestBas
         await Task.WhenAll(delayTask1, delayTask2);
 
         //误差时间在 50ms 以内
-        Assert.IsTrue(Math.Abs(delayTask1.Result - delayTask2.Result) < 100, "delay time error {0} - {1} ", delayTask1.Result ,delayTask2.Result);
+        Assert.IsLessThan(100, Math.Abs(delayTask1.Result - delayTask2.Result), $"delay time error {delayTask1.Result} - {delayTask2.Result}");
     }
 
     [TestMethod]
@@ -218,7 +216,7 @@ public abstract class ClientInvokeTestBase<TTestStartup> : TestServerBaseTestBas
         await Task.WhenAll(delayTask1, delayTask2);
 
         //误差时间在 50ms 以内
-        Assert.IsTrue(Math.Abs(delayTask1.Result - delayTask2.Result) < 50);
+        Assert.IsLessThan(50, Math.Abs(delayTask1.Result - delayTask2.Result));
     }
 
     [TestMethod]

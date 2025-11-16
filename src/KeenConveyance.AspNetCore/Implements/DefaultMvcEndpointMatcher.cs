@@ -1,4 +1,6 @@
-﻿using System.Collections.Concurrent;
+﻿#pragma warning disable IDE0130 // 命名空间与文件夹结构不匹配
+
+using System.Collections.Concurrent;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
@@ -71,7 +73,10 @@ public class DefaultMvcEndpointMatcher : IMvcEndpointMatcher, IDisposable
     /// <returns></returns>
     protected virtual Task LoadEndpointAsync(EndpointDataSource endpointDataSource)
     {
-        Logger.LogDebug("Start load endpoint. {EndpointDataSource}.", endpointDataSource);
+        if (Logger.IsEnabled(LogLevel.Debug))
+        {
+            Logger.LogDebug("Start load endpoint. {EndpointDataSource}.", endpointDataSource);
+        }
 
         var endpointEntryMap = new ConcurrentDictionary<string, Endpoint>();
 
@@ -83,18 +88,27 @@ public class DefaultMvcEndpointMatcher : IMvcEndpointMatcher, IDisposable
                 continue;
             }
 
-            Logger.LogDebug("Load endpoint {Endpoint} with entry key {EntryKey}.", endpointDataSource, entryKey);
+            if (Logger.IsEnabled(LogLevel.Debug))
+            {
+                Logger.LogDebug("Load endpoint {Endpoint} with entry key {EntryKey}.", endpointDataSource, entryKey);
+            }
 
             if (!endpointEntryMap.TryAdd(entryKey, endpoint))
             {
                 endpointEntryMap.TryGetValue(entryKey, out var existedEndpoint);
-                Logger.LogCritical("Endpoint entry key conflict. {ExistedEndpoint} and {Endpoint} has the same key {EntryKey}.", existedEndpoint, endpoint, entryKey);
+                if (Logger.IsEnabled(LogLevel.Critical))
+                {
+                    Logger.LogCritical("Endpoint entry key conflict. {ExistedEndpoint} and {Endpoint} has the same key {EntryKey}.", existedEndpoint, endpoint, entryKey);
+                }
             }
         }
 
         EndpointEntryMap = endpointEntryMap;
 
-        Logger.LogInformation("Load endpoint complete. Total count: {EndpointCount}.", endpointEntryMap.Count);
+        if (Logger.IsEnabled(LogLevel.Information))
+        {
+            Logger.LogInformation("Load endpoint complete. Total count: {EndpointCount}.", endpointEntryMap.Count);
+        }
 
         return Task.CompletedTask;
     }
@@ -142,7 +156,10 @@ public class DefaultMvcEndpointMatcher : IMvcEndpointMatcher, IDisposable
             }
             if (!EndpointEntryMap.TryGetValue(entryKey, out var endpoint))
             {
-                Logger.LogWarning("No matched endpoint for the entry key {EntryKey}", entryKey);
+                if (Logger.IsEnabled(LogLevel.Warning))
+                {
+                    Logger.LogWarning("No matched endpoint for the entry key {EntryKey}", entryKey);
+                }
             }
             return endpoint;
         }
@@ -162,6 +179,13 @@ public class DefaultMvcEndpointMatcher : IMvcEndpointMatcher, IDisposable
         Dispose(disposing: false);
     }
 
+    /// <inheritdoc/>
+    public void Dispose()
+    {
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
+
     /// <inheritdoc cref="Dispose()"/>
     protected virtual void Dispose(bool disposing)
     {
@@ -170,13 +194,6 @@ public class DefaultMvcEndpointMatcher : IMvcEndpointMatcher, IDisposable
             _isDisposed = true;
             _endpointDataSourceChangeTokenDisposer.Dispose();
         }
-    }
-
-    /// <inheritdoc/>
-    public void Dispose()
-    {
-        Dispose(disposing: true);
-        GC.SuppressFinalize(this);
     }
 
     #endregion Dispose

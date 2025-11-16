@@ -29,8 +29,10 @@ public abstract class TestStartup : ITestStartup
     {
         if (app.Environment.IsDevelopment())
         {
-            app.UseSwagger();
-            app.UseSwaggerUI();
+#if NET9_0_OR_GREATER
+            app.MapOpenApi();
+#endif
+            app.MapSwaggerUI();
         }
 
         app.UseAuthorization();
@@ -52,7 +54,10 @@ public abstract class TestStartup : ITestStartup
                         .AddApplicationPart(typeof(ITestStartup).Assembly);
 
         builder.Services.AddEndpointsApiExplorer();
-        builder.Services.AddSwaggerGen();
+
+#if NET9_0_OR_GREATER
+        builder.Services.AddOpenApi();
+#endif
 
         builder.Services.AddKeenConveyance(options => options.ObjectSerializers.Add(new MemoryPackObjectSerializer()));
 

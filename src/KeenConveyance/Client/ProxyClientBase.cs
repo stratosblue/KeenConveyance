@@ -240,7 +240,7 @@ public abstract class ProxyClientBase : IDisposable
     {
         #region Private 字段
 
-        private readonly MethodDescriptor[] _methodDescriptors = methodDescriptors.ToArray();
+        private readonly MethodDescriptor[] _methodDescriptors = [.. methodDescriptors];
 
         #endregion Private 字段
 

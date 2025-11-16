@@ -37,13 +37,13 @@ internal class TypeAnalyzer
 
 #pragma warning disable RS1024 // 正确比较符号
 
-    private readonly HashSet<ITypeSymbol> _booleanTypes = new HashSet<ITypeSymbol>(SymbolEqualityComparer.Default);
+    private readonly HashSet<ITypeSymbol> _booleanTypes = new(SymbolEqualityComparer.Default);
 
     private readonly ITypeSymbol _nullableSymbol;
 
-    private readonly HashSet<ITypeSymbol> _numberTypes = new HashSet<ITypeSymbol>(SymbolEqualityComparer.Default);
+    private readonly HashSet<ITypeSymbol> _numberTypes = new(SymbolEqualityComparer.Default);
 
-    private readonly HashSet<ITypeSymbol> _stringTypes = new HashSet<ITypeSymbol>(SymbolEqualityComparer.Default);
+    private readonly HashSet<ITypeSymbol> _stringTypes = new(SymbolEqualityComparer.Default);
 
 #pragma warning restore RS1024 // 正确比较符号
 

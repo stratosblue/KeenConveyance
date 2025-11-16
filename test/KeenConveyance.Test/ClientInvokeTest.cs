@@ -2,7 +2,7 @@
 using KeenConveyance.TestWebAPI;
 using KeenConveyance.TestWebAPI.MemoryPackSupportedTest;
 
-namespace KeenConveyance;
+namespace KeenConveyance.Test;
 
 #region Not PrePreparePayloadData
 

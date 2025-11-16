@@ -12,15 +12,19 @@ builder.Services.AddKeenConveyance()
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+#if NET9_0_OR_GREATER
+builder.Services.AddOpenApi();
+#endif
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+#if NET9_0_OR_GREATER
+    app.MapOpenApi(); 
+#endif
+    app.MapSwaggerUI();
 }
 
 app.UseAuthorization();

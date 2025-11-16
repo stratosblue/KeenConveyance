@@ -1,4 +1,6 @@
-﻿using System.Text.Encodings.Web;
+﻿#pragma warning disable IDE0130 // 命名空间与文件夹结构不匹配
+
+using System.Text.Encodings.Web;
 using System.Text.Json;
 
 namespace KeenConveyance;

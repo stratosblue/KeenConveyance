@@ -1,4 +1,6 @@
-﻿namespace KeenConveyance;
+﻿#pragma warning disable IDE0130 // 命名空间与文件夹结构不匹配
+
+namespace KeenConveyance;
 
 /// <summary>
 /// 基于 Query 的入口点设置选项

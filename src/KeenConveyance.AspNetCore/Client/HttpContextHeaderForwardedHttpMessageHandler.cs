@@ -2,22 +2,14 @@
 
 namespace KeenConveyance.AspNetCore.Client;
 
-internal sealed class HttpContextHeaderForwardedHttpMessageHandler : DelegatingHandler
+internal sealed class HttpContextHeaderForwardedHttpMessageHandler(IHttpContextAccessor httpContextAccessor)
+    : DelegatingHandler
 {
     #region Private 字段
 
-    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
 
     #endregion Private 字段
-
-    #region Public 构造函数
-
-    public HttpContextHeaderForwardedHttpMessageHandler(IHttpContextAccessor httpContextAccessor)
-    {
-        _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
-    }
-
-    #endregion Public 构造函数
 
     #region Protected 方法
 

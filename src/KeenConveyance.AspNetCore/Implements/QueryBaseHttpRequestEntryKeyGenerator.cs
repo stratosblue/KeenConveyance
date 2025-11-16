@@ -1,24 +1,18 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿#pragma warning disable IDE0130 // 命名空间与文件夹结构不匹配
+
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 
 namespace KeenConveyance.AspNetCore;
 
-internal sealed class QueryBaseHttpRequestEntryKeyGenerator : IHttpRequestEntryKeyGenerator
+internal sealed class QueryBaseHttpRequestEntryKeyGenerator(IOptions<QueryBaseEntryKeyOptions> optionsAccessor)
+    : IHttpRequestEntryKeyGenerator
 {
     #region Private 字段
 
-    private readonly string _queryKey;
+    private readonly string _queryKey = optionsAccessor?.Value?.QueryKey ?? throw new ArgumentNullException(nameof(optionsAccessor));
 
     #endregion Private 字段
-
-    #region Public 构造函数
-
-    public QueryBaseHttpRequestEntryKeyGenerator(IOptions<QueryBaseEntryKeyOptions> optionsAccessor)
-    {
-        _queryKey = optionsAccessor?.Value?.QueryKey ?? throw new ArgumentNullException(nameof(optionsAccessor));
-    }
-
-    #endregion Public 构造函数
 
     #region Public 方法
 

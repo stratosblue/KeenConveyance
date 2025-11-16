@@ -3,22 +3,14 @@ using Microsoft.AspNetCore.Mvc.Controllers;
 
 namespace KeenConveyance.AspNetCore.Mvc;
 
-internal sealed class DelegatingControllerFeatureProvider : ControllerFeatureProvider
+internal sealed class DelegatingControllerFeatureProvider(Predicate<TypeInfo> controllerPredicate)
+    : ControllerFeatureProvider
 {
     #region Private 字段
 
-    private readonly Predicate<TypeInfo> _controllerPredicate;
+    private readonly Predicate<TypeInfo> _controllerPredicate = controllerPredicate ?? throw new ArgumentNullException(nameof(controllerPredicate));
 
     #endregion Private 字段
-
-    #region Public 构造函数
-
-    public DelegatingControllerFeatureProvider(Predicate<TypeInfo> controllerPredicate)
-    {
-        _controllerPredicate = controllerPredicate ?? throw new ArgumentNullException(nameof(controllerPredicate));
-    }
-
-    #endregion Public 构造函数
 
     #region Protected 方法
 

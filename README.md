@@ -9,7 +9,7 @@ A `Asp.Net Core Controller` service call RPC framework based on `interface`. 基
  - 数据交换格式易拓展, 不局限于 `Json`, 可拓展为任意编码如: `MemoryPack`、`MessagePack` 等;
  - 动态 `Controller` 选择. 支持选择指定类型注册为 `Controller` 并暴露 `HttpAPI`;
  - 基于约定的客户端代码生成. 不依赖类库共享;
- - 目标框架 `net6.0`+;
+ - 目标框架 `net8.0`+;
 
 ### NOTE!!!
  - 虽然支持所有标准的 `Controller` 功能且执行其流程, 但框架并非按照 `Controller` 定义进行请求, 框架的请求中会忽略 `[FromQuery]`、`[FromRoute]` 等定义直接使用 `ModelBinder` 从 `Body` 进行绑定;
@@ -23,7 +23,7 @@ A `Asp.Net Core Controller` service call RPC framework based on `interface`. 基
  - 新建 `Asp.Net Core Web API` 项目, 并引用包:
 ```xml
 <ItemGroup>
-  <PackageReference Include="KeenConveyance.AspNetCore" Version="1.0.0" />
+  <PackageReference Include="KeenConveyance.AspNetCore" Version="1.1.0" />
 </ItemGroup>
 ```
 
@@ -74,7 +74,7 @@ public class SampleService : ISampleService
  - 新建任意类型项目 (需要 `DI` 支持, 可能需要手动引入), 并引用包:
 ```xml
 <ItemGroup>
-  <PackageReference Include="KeenConveyance" Version="1.0.0" />
+  <PackageReference Include="KeenConveyance" Version="1.1.0" />
 </ItemGroup>
 ```
  Note: 项目直接引用而不要间接引用!

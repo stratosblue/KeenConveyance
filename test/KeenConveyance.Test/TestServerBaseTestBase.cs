@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace KeenConveyance;
+namespace KeenConveyance.Test;
 
 public abstract class TestServerBaseTestBase<TTestStartup> where TTestStartup : ITestStartup, new()
 {

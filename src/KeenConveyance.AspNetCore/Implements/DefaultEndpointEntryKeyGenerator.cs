@@ -1,4 +1,6 @@
-﻿using System.Reflection;
+﻿#pragma warning disable IDE0130 // 命名空间与文件夹结构不匹配
+
+using System.Reflection;
 using System.Text;
 using KeenConveyance.Util;
 using Microsoft.AspNetCore.Http;
@@ -7,22 +9,14 @@ using Microsoft.Extensions.Options;
 
 namespace KeenConveyance.AspNetCore;
 
-internal sealed class DefaultEndpointEntryKeyGenerator : IEndpointEntryKeyGenerator
+internal sealed class DefaultEndpointEntryKeyGenerator(IOptions<KeenConveyanceMvcOptions> optionsAccessor)
+    : IEndpointEntryKeyGenerator
 {
     #region Private 字段
 
-    private readonly Predicate<Endpoint> _endpointSelectPredicate;
+    private readonly Predicate<Endpoint> _endpointSelectPredicate = optionsAccessor.Value.EndpointSelectPredicate ?? (static _ => true);
 
     #endregion Private 字段
-
-    #region Public 构造函数
-
-    public DefaultEndpointEntryKeyGenerator(IOptions<KeenConveyanceMvcOptions> optionsAccessor)
-    {
-        _endpointSelectPredicate = optionsAccessor.Value.EndpointSelectPredicate ?? (static _ => true);
-    }
-
-    #endregion Public 构造函数
 
     #region Public 方法
 
@@ -41,7 +35,7 @@ internal sealed class DefaultEndpointEntryKeyGenerator : IEndpointEntryKeyGenera
                 {
                     var typeAliasAttribute = declaringTypeInterface.GetCustomAttribute<AliasAttribute>();
                     var parameters = actionMethodInfo.GetParameters();
-                    var actionMethodRawInfo = declaringTypeInterface.GetMethod(actionMethodInfo.Name, parameters.Select(static m => m.ParameterType).ToArray());
+                    var actionMethodRawInfo = declaringTypeInterface.GetMethod(actionMethodInfo.Name, [.. parameters.Select(static m => m.ParameterType)]);
                     var methodAliasAttribute = actionMethodRawInfo?.GetCustomAttribute<AliasAttribute>();
 
                     var parameterString = string.Join(", ", parameters.Where(m => m.ParameterType != typeof(CancellationToken)).Select(m => GetTypeName(m.ParameterType)));

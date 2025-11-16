@@ -1,21 +1,13 @@
 ﻿namespace KeenConveyance.SourceGenerator;
 
-internal readonly struct ComparableArray<T> : IEquatable<ComparableArray<T>>
+internal readonly struct ComparableArray<T>(T[] items)
+    : IEquatable<ComparableArray<T>>
 {
     #region Public 属性
 
-    public T[] Items { get; }
+    public T[] Items { get; } = items;
 
     #endregion Public 属性
-
-    #region Public 构造函数
-
-    public ComparableArray(T[] items)
-    {
-        Items = items;
-    }
-
-    #endregion Public 构造函数
 
     #region Public 方法
 

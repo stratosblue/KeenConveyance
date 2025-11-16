@@ -1,5 +1,4 @@
 ﻿using BenchmarkDotNet.Running;
-
-using KeenConveyance;
+using KeenConveyance.Benchmark;
 
 BenchmarkRunner.Run<GenericBenchmark>();

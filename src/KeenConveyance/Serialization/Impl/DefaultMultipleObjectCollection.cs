@@ -1,4 +1,6 @@
-﻿using System.Buffers;
+﻿#pragma warning disable IDE0130 // 命名空间与文件夹结构不匹配
+
+using System.Buffers;
 using KeenConveyance.ModelBinding;
 
 namespace KeenConveyance.Serialization;
@@ -98,10 +100,7 @@ public sealed class DefaultMultipleObjectCollection : IMultipleObjectCollection,
 
     private void ThrowIfDisposed()
     {
-        if (_isDisposed)
-        {
-            throw new ObjectDisposedException(nameof(DefaultMultipleObjectCollection));
-        }
+        ObjectDisposedException.ThrowIf(_isDisposed, this);
     }
 
     #endregion Private 方法

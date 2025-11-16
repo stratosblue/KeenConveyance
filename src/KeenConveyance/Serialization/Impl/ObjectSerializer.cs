@@ -1,28 +1,21 @@
-﻿using System.Buffers;
+﻿#pragma warning disable IDE0130 // 命名空间与文件夹结构不匹配
+
+using System.Buffers;
 
 namespace KeenConveyance.Serialization;
 
 /// <summary>
 /// <see cref="IObjectSerializer"/> 基类
 /// </summary>
-public abstract class ObjectSerializer : IObjectSerializer
+public abstract class ObjectSerializer(string supportedMediaType)
+    : IObjectSerializer
 {
     #region Public 属性
 
     /// <inheritdoc/>
-    public SpecificMediaType SupportedMediaType { get; }
+    public SpecificMediaType SupportedMediaType { get; } = supportedMediaType;
 
     #endregion Public 属性
-
-    #region Public 构造函数
-
-    /// <inheritdoc cref="ObjectSerializer"/>
-    public ObjectSerializer(string supportedMediaType)
-    {
-        SupportedMediaType = supportedMediaType;
-    }
-
-    #endregion Public 构造函数
 
     #region Public 方法
 

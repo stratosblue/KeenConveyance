@@ -60,7 +60,7 @@ public class ClientGenerator : IIncrementalGenerator
                                                  foreach (var item in group)
                                                  {
                                                      var diagnosticDescriptor = new DiagnosticDescriptor(id: "KC002", title: "Generator", messageFormat: "不能为类型 {0} 生成 KeenConveyance 客户端，因为对其进行了多次不相容的客户端配置。", category: "KeenConveyanceClientGenerator", defaultSeverity: DiagnosticSeverity.Error, isEnabledByDefault: true);
-                                                     context.ReportDiagnostic(Diagnostic.Create(descriptor: diagnosticDescriptor, location: item.InvocationExpressionSyntax.GetLocation(), messageArgs: new[] { item.ServiceGenerateInfo.ServiceType }));
+                                                     context.ReportDiagnostic(Diagnostic.Create(descriptor: diagnosticDescriptor, location: item.InvocationExpressionSyntax.GetLocation(), messageArgs: [item.ServiceGenerateInfo.ServiceType]));
                                                  }
                                              }
                                          }
@@ -85,7 +85,7 @@ public class ClientGenerator : IIncrementalGenerator
                                  foreach (var (invalidClientAddExpression, typeSymbol) in invalidClientAddExpressions)
                                  {
                                      var diagnosticDescriptor = new DiagnosticDescriptor(id: "KC001", title: "Generator", messageFormat: "不能为类型 {0} 生成 KeenConveyance 客户端，请使用正确的接口进行客户端声明。", category: "KeenConveyanceClientGenerator", defaultSeverity: DiagnosticSeverity.Error, isEnabledByDefault: true);
-                                     context.ReportDiagnostic(Diagnostic.Create(descriptor: diagnosticDescriptor, location: invalidClientAddExpression.GetLocation(), messageArgs: new[] { typeSymbol }));
+                                     context.ReportDiagnostic(Diagnostic.Create(descriptor: diagnosticDescriptor, location: invalidClientAddExpression.GetLocation(), messageArgs: [typeSymbol]));
                                  }
                              });
     }

@@ -1,9 +1,8 @@
-﻿using KeenConveyance.Test;
-using KeenConveyance.TestWebAPI;
+﻿using KeenConveyance.TestWebAPI;
 using KeenConveyance.TestWebAPI.Services;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace KeenConveyance;
+namespace KeenConveyance.Test;
 
 public abstract class MultiClientInvokeTestBase<TTestStartup> : ClientInvokeTestBase<TTestStartup> where TTestStartup : ITestStartup, new()
 {

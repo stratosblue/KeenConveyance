@@ -10,7 +10,9 @@ using MvcActionDescriptor = Microsoft.AspNetCore.Mvc.Abstractions.ActionDescript
 
 namespace KeenConveyance.AspNetCore.Mvc.ModelBinding;
 
-internal class KeenConveyanceWrappedModelBinder : IModelBinder
+internal class KeenConveyanceWrappedModelBinder(IModelBinder innerModelBinder,
+                                                IObjectSerializerSelector objectSerializerSelector)
+    : IModelBinder
 {
     #region Public 字段
 
@@ -24,23 +26,13 @@ internal class KeenConveyanceWrappedModelBinder : IModelBinder
 
     private readonly ConcurrentDictionary<MvcActionDescriptor, IReadOnlyList<Type>> _actionParameterTypesCache = new();
 
-    private readonly IModelBinder _innerModelBinder;
+    private readonly IModelBinder _innerModelBinder = innerModelBinder ?? throw new ArgumentNullException(nameof(innerModelBinder));
 
-    private readonly IObjectSerializerSelector _objectSerializerSelector;
+    private readonly IObjectSerializerSelector _objectSerializerSelector = objectSerializerSelector ?? throw new ArgumentNullException(nameof(objectSerializerSelector));
 
     private readonly ConcurrentDictionary<ModelMetadata, ParameterDescriptor> _parameterDescriptorCache = new();
 
     #endregion Private 字段
-
-    #region Public 构造函数
-
-    public KeenConveyanceWrappedModelBinder(IModelBinder innerModelBinder, IObjectSerializerSelector objectSerializerSelector)
-    {
-        _innerModelBinder = innerModelBinder ?? throw new ArgumentNullException(nameof(innerModelBinder));
-        _objectSerializerSelector = objectSerializerSelector ?? throw new ArgumentNullException(nameof(objectSerializerSelector));
-    }
-
-    #endregion Public 构造函数
 
     #region Private 方法
 

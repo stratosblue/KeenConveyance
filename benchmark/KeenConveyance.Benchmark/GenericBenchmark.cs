@@ -1,6 +1,6 @@
 ﻿using BenchmarkDotNet.Attributes;
 
-namespace KeenConveyance;
+namespace KeenConveyance.Benchmark;
 
 [SimpleJob]
 [MemoryDiagnoser]

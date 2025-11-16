@@ -1,4 +1,6 @@
-﻿using System.Buffers.Binary;
+﻿#pragma warning disable IDE0130 // 命名空间与文件夹结构不匹配
+
+using System.Buffers.Binary;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;

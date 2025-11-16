@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿#pragma warning disable IDE0130 // 命名空间与文件夹结构不匹配
+
+using Microsoft.Extensions.DependencyInjection;
 
 namespace KeenConveyance;
 
@@ -12,7 +14,7 @@ public class KeenConveyanceClientBuilderContext
     /// <summary>
     /// 客户端 <see cref="IHttpClientBuilder"/> 字典
     /// </summary>
-    public Dictionary<Type, IHttpClientBuilder> ClientHttpClientBuilders { get; } = new();
+    public Dictionary<Type, IHttpClientBuilder> ClientHttpClientBuilders { get; } = [];
 
     #endregion Public 属性
 }
